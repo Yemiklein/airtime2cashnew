@@ -2,11 +2,17 @@
   "name": "server",
   "version": "0.0.0",
   "private": true,
-    "scripts": {
+  "scripts": {
     "start": "node ./bin/www",
     "serve": "nodemon ./bin/www",
     "dev": "ts-node-dev --respawn ./bin/www",
-    "compile": "tsc -w"
+    "compile": "tsc -w",
+    "lint": "eslint src/**/*.ts",
+    "lint-fix": "eslint --fix src/**/*.ts",
+    "pretty": "prettier --write 'src/**/*.ts'",
+    "prepare": "cd .. && husky install server/.husky",
+    "precommit": "yarn lint-fix && yarn pretty",
+    "prepush": "yarn lint"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -22,7 +28,6 @@
     "nodemailer": "^6.7.8",
     "sequelize": "^6.21.6",
     "sqlite3": "^5.0.11",
-    "typescript": "^4.8.3",
     "uuidv4": "^6.2.13"
   },
   "devDependencies": {
@@ -40,6 +45,19 @@
     "@types/sequelize": "^4.28.14",
     "@types/sqlite3": "^3.1.8",
     "@types/uuid": "^8.3.4",
-    "ts-node-dev": "^2.0.0"
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.37.0",
+    "eslint": "^8.0.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard-with-typescript": "^22.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.0.0",
+    "husky": "^8.0.1",
+    "prettier": "^2.7.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.8.3"
   }
 }
