@@ -16,7 +16,7 @@ let transporter = nodemailer.createTransport({
 });
 
 export async function sendMail(req: express.Request, res: express.Response) {
-  console.log(process.env.EMAIL_PASSWORD as string);
+
 
   const { from, to, subject, text, html } = req.body;
   try {
@@ -53,6 +53,3 @@ export async function sendMail(req: express.Request, res: express.Response) {
   }
 }
 
-export async function passwordRest(req: express.Request, res: express.Response) {
-
-}
