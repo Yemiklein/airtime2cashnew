@@ -29,13 +29,3 @@ export const signUpSchema = Joi.object().keys({
     password:Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/),
     confirmPassword:Joi.ref("password")
 }).with('password', 'confirmPassword')
-
-
-export const options ={  
-    abortEarly:false,
-    errors:{
-        wrap:{
-            label: ''
-        }
-    }
-}
