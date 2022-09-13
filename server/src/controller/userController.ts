@@ -1,9 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { signUpSchema, updateUserSchema, options } from '../utils/utils';
+
+import { signUpSchema, updateUserSchema, options, agenerateToken, loginSchema } from '../utils/utils';
 import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import cloudinary from 'cloudinary'
+
 
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   const id = uuidv4();
@@ -97,6 +99,60 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     });
   } catch (err) {
     console.log(err)
-    res.status(500).json({ message: 'failed to update user details' });
+    res.status(500).json({ message: 'failed to update user details' })
+  }
+
+}
+
+export async function userLogin(req: Request, res: Response, next: NextFunction) {
+  try {
+    const validate = loginSchema.validate(req.body, options);
+    if (validate.error) {
+      return res.status(401).json({ Error: validate.error.details[0].message });
+    }
+    let validUser;
+    if (req.body.userName) {
+      validUser = (await userInstance.findOne({
+        where: { userName: req.body.userName },
+      })) as unknown as { [key: string]: string };
+    } else if (req.body.email) {
+      validUser = (await userInstance.findOne({
+        where: { email: req.body.email },
+      })) as unknown as { [key: string]: string };
+    } else {
+      return res.json({ message: 'Username or email is required' });
+    }
+    if (!validUser) {
+      return res.status(401).json({ msg: 'User is not registered' });
+    }
+
+    const { id } = validUser;
+    const token = agenerateToken({ id });
+
+    const validatedUser = await bcrypt.compare(req.body.password, validUser.password);
+
+    if (!validatedUser) {
+      res.status(401).json({ msg: 'failed to login, wrong user name/password inputed' });
+    }
+
+    if (validatedUser) {
+      res
+        .cookie('jwt', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+        })
+        .status(200)
+        .json({
+          msg: 'Successfully logged in',
+          token,
+          user_info: {
+            name: `${validUser.firstName} ${validUser.lastName}`,
+            userName: `${validUser.userName}`,
+            email: `${validUser.email}`,
+          },
+        });
+    }
+  } catch (error) {
+    res.status(500).json({ msg: 'failed to login', route: '/login' });
   }
 }

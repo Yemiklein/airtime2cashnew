@@ -27,7 +27,16 @@ export const updateUserSchema = Joi.object().keys({
   lastName: Joi.string(),
   phoneNumber: Joi.string(),
   avatar: Joi.string(),
-});
+
+})
+
+export const loginSchema = Joi.object().keys({
+  userName: Joi.string().trim().lowercase(),
+  email: Joi.string().trim().lowercase(),
+  password: Joi.string()
+    .regex(/^[a-zA-Z0-9]{3,30}$/)
+    .required(),
+})
 
 export const options = {
   abortEarly: false,
@@ -36,4 +45,10 @@ export const options = {
       label: '',
     },
   },
+};
+
+export const agenerateToken = (user: { [key: string]: unknown }): unknown => {
+  const pass = process.env.JWT_SECRET as string;
+  const expiresIn = process.env.JWT_DURATION as string;
+  return jwt.sign(user, pass, { expiresIn });
 };
