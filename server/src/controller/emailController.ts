@@ -1,17 +1,32 @@
 import express from 'express';
 import nodemailer from 'nodemailer';
 
+import {
+  sendEmail,
+  options,
+} from "../utils/utils";
+
+
+let transporter = nodemailer.createTransport({
+  service: 'hotmail',
+  auth: {
+    user: process.env.EMAIL_USERNAME as string,
+    pass: process.env.EMAIL_PASSWORD as string,
+  },
+});
+
 export async function sendMail(req: express.Request, res: express.Response) {
+  console.log(process.env.EMAIL_PASSWORD as string);
+
   const { from, to, subject, text, html } = req.body;
   try {
-    let transporter = nodemailer.createTransport({
-      service: 'hotmail',
-      auth: {
-        user: 'decgaon_podf_sq11b@outlook.com',
-        pass: 'LiveProject2022',
-      },
-    });
 
+    const validationResult = sendEmail.validate(req.body, options);
+    if (validationResult.error) {
+      return res.status(400).json({
+        Error: validationResult.error.details[0].message,
+      });
+    }
     let mailOptions = { from: 'decgaon_podf_sq11b@outlook.com', to, subject, text, html };
 
     transporter.sendMail(mailOptions, (err, info) => {
@@ -19,7 +34,7 @@ export async function sendMail(req: express.Request, res: express.Response) {
         console.log(err);
 
         res.status(400).json({
-          message: 'An error occured',
+          message: 'An error occurred',
           err,
         });
       } else {
@@ -36,4 +51,8 @@ export async function sendMail(req: express.Request, res: express.Response) {
       route: '/create',
     });
   }
+}
+
+export async function passwordRest(req: express.Request, res: express.Response) {
+
 }
