@@ -9,14 +9,6 @@ export const sendEmail = Joi.object().keys({
   html: Joi.string().required(),
 });
 
-export const options = {
-  abortEarly: false,
-  error: {
-    wrap: {
-      label: '',
-    },
-  },
-};
 
 export const signUpSchema = Joi.object().keys({
     firstName:Joi.string().required(),
