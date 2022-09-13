@@ -10,7 +10,6 @@ interface userAttributes{
     email:string;
     phoneNumber:string;
     password:string;
-    confirmPassword:string;
     avatar:string;
     isVerified:Boolean
 }
@@ -89,15 +88,13 @@ password:{
         }
     }
 },
-confirmPassword:{
-    type:DataTypes.STRING,
-    allowNull:false, 
-},
 avatar:{
     type:DataTypes.STRING,
+    defaultValue: "https://static.vecteezy.com/system/resources/thumbnails/005/129/844/small/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg"
 },
 isVerified:{
     type:DataTypes.BOOLEAN,
+    defaultValue:false
 } 
 }, {
     sequelize: db,

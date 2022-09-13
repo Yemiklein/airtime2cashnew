@@ -8,7 +8,6 @@ export async function registerUser(req:Request, res:Response, next:NextFunction)
     const id = uuidv4()
     try{
         const validationResult = signUpSchema.validate(req.body,options)
-        console.log(validationResult)
         if( validationResult.error){
             
             return res.status(400).json({
@@ -22,6 +21,7 @@ export async function registerUser(req:Request, res:Response, next:NextFunction)
             msg:"Email is used, please change email"
             })
         }
+        
 
         const passwordHash = await bcrypt.hash(req.body.password,10)
         const record = await userInstance.create({ 
@@ -32,11 +32,10 @@ export async function registerUser(req:Request, res:Response, next:NextFunction)
             email:req.body.email,
             phoneNumber:req.body.phoneNumber,
             password:passwordHash,
-            confirmPassword:passwordHash,
             avatar:req.body.avatar,
             isVerified:req.body.isVerified
         })
-
+        console.log('here')
         res.status(201).json({
             message: "Successfully created a user",
             record
