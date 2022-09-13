@@ -9,25 +9,25 @@ export async function registerUser(req:Request, res:Response, next:NextFunction)
     try{
         const validationResult = signUpSchema.validate(req.body,options)
         if( validationResult.error){
-            
+
             return res.status(400).json({
                Error:validationResult.error.details[0].message
             })
          }
-        
+
         const duplicateEmail = await userInstance.findOne({where:{email:req.body.email}})
         if(duplicateEmail){
             return res.status(409).json({
             msg:"Email is used, please change email"
             })
         }
-        
+
 
         const passwordHash = await bcrypt.hash(req.body.password,10)
-        const record = await userInstance.create({ 
+        const record = await userInstance.create({
             id:id,
             firstName:req.body.firstName,
-            lastName:req.body.lastName, 
+            lastName:req.body.lastName,
             userName:req.body.userName,
             email:req.body.email,
             phoneNumber:req.body.phoneNumber,
