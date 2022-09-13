@@ -4,13 +4,14 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import db from './config/database.config';
+import mailRouter from './routes/email'
 
 // import indexRouter from './routes/index'
 // import usersRouter from './routes/users'
 
 db.sync()
   .then(() => {
-    console.log('Database connected succefully 🚀');
+    console.log('Database connected successfully 🚀');
   })
   .catch((err) => {
     console.log(err);
@@ -27,10 +28,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+app.use('/api/mail', mailRouter);
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
+
 
 // error handler
 app.use(function (err: HttpError, req: Request, res: Response, next: NextFunction) {
