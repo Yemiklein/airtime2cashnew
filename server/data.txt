@@ -18,3 +18,11 @@
   "email": "test@live.com",
   "confirmPassword":"password123",
   "password": "password123"}
+
+
+  routes:
+  1.register 
+  localhost:7000/user/register
+  2. loggin
+    localhost:7000/user/login
+    localhost:7000/user/login
