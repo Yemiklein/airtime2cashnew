@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { signUpSchema, options, agenerateToken, loginSchema } from '../utils/utils';
+import { signUpSchema, options, agenerateToken, loginSchema,resetPasswordSchema } from '../utils/utils';
 import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
@@ -32,7 +32,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       avatar: req.body.avatar,
       isVerified: req.body.isVerified,
     });
-    console.log('here');
     res.status(201).json({
       message: 'Successfully created a user',
       record,
@@ -97,10 +96,11 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
 export async function forgetPassword(req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body;
-    const user = await userInstance.findOne({ where: { email: email } });
+    const user = await userInstance.findOne({ where: { email } });
+    console.log(req.body.email)
     if (!user) {
-      return res.status(404).json({
-        msg: 'User not found',
+      return res.status(409).json({
+        message: 'User not found',
       });
     }
     const token = uuidv4();
@@ -111,7 +111,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
       subject: 'Password Reset',
       html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
             margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
-            <h2 style="color: teal;">Welcome To Zen Health Therapy</h2>
+            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
             <p>Please Follow the link by clicking on the button to verify your email
              </p>
              <div style='text-align:center ;'>
@@ -139,6 +139,10 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
 export async function resetPassword(req: Request, res: Response, next: NextFunction) {
   try {
     const { token, password } = req.body;
+    const validate = resetPasswordSchema.validate(req.body, options);
+    if (validate.error) {
+        return res.status(400).json({ Error: validate.error.details[0].message });
+    }
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
       return res.status(404).json({

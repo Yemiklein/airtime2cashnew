@@ -9,7 +9,7 @@ import mailRouter from './routes/email'
 // import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 
-db.sync({force:true})
+db.sync({})
   .then(() => {
     console.log('Database connected successfully 🚀');
   })
