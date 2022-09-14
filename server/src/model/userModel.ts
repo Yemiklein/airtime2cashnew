@@ -2,6 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 import db from '../config/database.config';
 import bcrypt from 'bcryptjs';
 
+<<<<<<< HEAD
 interface userAttributes {
   id: string;
   firstName: string;
@@ -12,6 +13,20 @@ interface userAttributes {
   password: string;
   avatar: string;
   isVerified: Boolean;
+=======
+
+interface userAttributes{
+    id:string;
+    firstName:string;
+    lastName:string;
+    userName:string;
+    email:string;
+    phoneNumber:string;
+    password:string;
+    avatar:string;
+    isVerified:Boolean,
+    token?:string;
+>>>>>>> origin/develop
 }
 
 export class userInstance extends Model<userAttributes> {}
@@ -30,6 +45,7 @@ userInstance.init(
         notNull: {
           msg: 'full name is required',
         },
+<<<<<<< HEAD
         notEmpty: {
           msg: 'Please provide full name',
         },
@@ -108,3 +124,27 @@ userInstance.init(
 export async function correctPassword(loggedInPassword: string, userPassword: string) {
   return await  bcrypt.compare(loggedInPassword, userPassword);
 }
+=======
+        notEmpty:{
+            msg:"Please provide a password"
+        }
+    }
+},
+avatar:{
+    type:DataTypes.STRING,
+    defaultValue: "https://static.vecteezy.com/system/resources/thumbnails/005/129/844/small/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg"
+},
+isVerified:{
+    type:DataTypes.BOOLEAN,
+    defaultValue:false
+},
+token:{
+    type:DataTypes.STRING,
+    defaultValue:null
+}
+}, {
+    sequelize: db,
+    tableName:"Users"
+
+})
+>>>>>>> origin/develop
