@@ -12,7 +12,7 @@ interface userAttributes{
     password:string;
     avatar:string;
     isVerified:Boolean,
-    token:string;
+    token?:string;
 }
 
 export class userInstance extends Model<userAttributes>{}
