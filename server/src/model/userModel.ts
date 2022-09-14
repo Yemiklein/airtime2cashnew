@@ -11,7 +11,7 @@ interface userAttributes{
     phoneNumber:string;
     password:string;
     avatar:string;
-    isVerified:Boolean
+    isVerified?:Boolean
 }
 
 export class userInstance extends Model<userAttributes>{}
@@ -60,7 +60,7 @@ userName:{
 },
 email:{
     type:DataTypes.STRING,
-    allowNull:false, 
+    allowNull:false,
     unique: true,
     validate:{
     notNull:{
@@ -70,14 +70,14 @@ email:{
             msg:"Please provide a valid email"
             }
     }
-}, 
+},
 phoneNumber:{
     type:DataTypes.STRING,
     allowNull:false
 },
 password:{
     type:DataTypes.STRING,
-    allowNull:false, 
+    allowNull:false,
     unique: true,
     validate:{
         notNull:{
@@ -95,7 +95,7 @@ avatar:{
 isVerified:{
     type:DataTypes.BOOLEAN,
     defaultValue:false
-} 
+}
 }, {
     sequelize: db,
     tableName:"Users"
