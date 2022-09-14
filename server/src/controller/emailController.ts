@@ -1,11 +1,7 @@
 import express from 'express';
 import nodemailer from 'nodemailer';
 
-import {
-  sendEmail,
-  options,
-} from "../utils/utils";
-
+import { sendEmail, options } from '../utils/utils';
 
 let transporter = nodemailer.createTransport({
   service: 'hotmail',
@@ -20,7 +16,6 @@ export async function sendMail(req: express.Request, res: express.Response) {
 
   const { from, to, subject, text, html } = req.body;
   try {
-
     const validationResult = sendEmail.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -53,6 +48,4 @@ export async function sendMail(req: express.Request, res: express.Response) {
   }
 }
 
-export async function passwordRest(req: express.Request, res: express.Response) {
-
-}
+export async function passwordRest(req: express.Request, res: express.Response) {}
