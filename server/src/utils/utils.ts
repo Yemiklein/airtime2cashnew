@@ -38,6 +38,13 @@ export const loginSchema = Joi.object().keys({
     .required(),
 })
 
+export const resetPasswordSchema = Joi.object().keys({
+  token: Joi.string(),
+  password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/),
+  confirmPassword: Joi.ref('password'),
+})
+.with('password', 'confirmPassword');
+
 export const options = {
   abortEarly: false,
   errors: {

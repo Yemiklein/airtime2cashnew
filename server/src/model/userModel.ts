@@ -12,6 +12,7 @@ interface userAttributes{
     password:string;
     avatar:string;
     isVerified?:Boolean
+    token?:string;
 }
 
 export class userInstance extends Model<userAttributes>{}
@@ -95,9 +96,13 @@ avatar:{
 isVerified:{
     type:DataTypes.BOOLEAN,
     defaultValue:false
+},
+token:{
+    type:DataTypes.STRING,
+    defaultValue:null
 }
 }, {
     sequelize: db,
     tableName:"Users"
-})
 
+})

@@ -1,11 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-
-import { signUpSchema, updateUserSchema, options, agenerateToken, loginSchema } from '../utils/utils';
+import { signUpSchema, updateUserSchema, options, agenerateToken, loginSchema,resetPasswordSchema } from '../utils/utils';
 import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
+import { emailTemplate } from './emailController';
 import cloudinary from 'cloudinary'
-
 
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   const id = uuidv4();
@@ -16,14 +15,12 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
         Error: validationResult.error.details[0].message,
       });
     }
-
     const duplicateEmail = await userInstance.findOne({ where: { email: req.body.email } });
     if (duplicateEmail) {
       return res.status(409).json({
         msg: 'Email is used, please change email',
       });
     }
-
     const passwordHash = await bcrypt.hash(req.body.password, 10);
     const record = await userInstance.create({
       id: id,
@@ -36,7 +33,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       avatar: req.body.avatar,
       isVerified: req.body.isVerified,
     });
-
     res.status(201).json({
       message: 'Successfully created a user',
       record,
@@ -125,16 +121,12 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
     if (!validUser) {
       return res.status(401).json({ msg: 'User is not registered' });
     }
-
     const { id } = validUser;
     const token = agenerateToken({ id });
-
     const validatedUser = await bcrypt.compare(req.body.password, validUser.password);
-
     if (!validatedUser) {
       res.status(401).json({ msg: 'failed to login, wrong user name/password inputed' });
     }
-
     if (validatedUser) {
       res
         .cookie('jwt', token, {
@@ -155,5 +147,76 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
     }
   } catch (error) {
     res.status(500).json({ msg: 'failed to login', route: '/login' });
+  }
+}
+
+export async function forgetPassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email } = req.body;
+    const user = await userInstance.findOne({ where: { email } });
+    console.log(req.body.email)
+    if (!user) {
+      return res.status(409).json({
+        message: 'User not found',
+      });
+    }
+    const token = uuidv4();
+    const resetPasswordToken = await userInstance.update({ token }, { where: { email: email } });
+    const link = `${process.env.FRONTEND_URL}/reset/${token}`;
+    const emailData = {
+      to: email,
+      subject: 'Password Reset',
+      html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+            margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
+            <p>Please Follow the link by clicking on the button to verify your email
+             </p>
+             <div style='text-align:center ;'>
+               <a href=${link}
+              style="background: #277BC0; text-decoration: none; color: white;
+               padding: 10px 20px; margin: 10px 0;
+              display: inline-block;">Click here</a>
+             </div>
+          </div>`,
+    };
+    emailTemplate(emailData, res, req);
+    res.status(200).json({
+      msg: 'Reset password token sent to your email',
+      token,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      msg: 'failed to send reset password token',
+      route: '/forgetPassword',
+    });
+  }
+}
+
+export async function resetPassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { token, password } = req.body;
+    const validate = resetPasswordSchema.validate(req.body, options);
+    if (validate.error) {
+        return res.status(400).json({ Error: validate.error.details[0].message });
+    }
+    const user = await userInstance.findOne({ where: { token } });
+    if (!user) {
+      return res.status(404).json({
+        msg: 'User not found',
+      });
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    const resetPassword = await userInstance.update({ password: passwordHash }, { where: { token } });
+    res.status(200).json({
+      msg: 'Password reset successfully',
+      resetPassword,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      msg: 'failed to reset password',
+      route: '/resetPassword',
+    });
   }
 }
