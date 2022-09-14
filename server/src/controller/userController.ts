@@ -36,7 +36,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       avatar: req.body.avatar,
       isVerified: req.body.isVerified,
     });
-    console.log('here');
+
     res.status(201).json({
       message: 'Successfully created a user',
       record,
@@ -72,7 +72,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     const {id} = req.params
     const record = await userInstance.findOne({ where:  {id}  });
 
-    const { firstName, lastName, phoneNumber, avatar } = req.body;
+    const { firstName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
 
     if (validationResult.error) {
@@ -94,7 +94,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     });
 
     return res.status(202).json({
-      msg: 'successfully updated user details',
+      message: 'successfully updated user details',
       updatedRecord,
     });
   } catch (err) {
@@ -143,7 +143,8 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
         })
         .status(200)
         .json({
-          msg: 'Successfully logged in',
+          message: 'Successfully logged in',
+          id,
           token,
           user_info: {
             name: `${validUser.firstName} ${validUser.lastName}`,

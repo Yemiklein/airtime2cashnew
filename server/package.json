@@ -7,6 +7,7 @@
     "serve": "nodemon ./bin/www",
     "dev": "ts-node-dev --respawn ./bin/www",
     "compile": "tsc -w",
+    "test": "jest --detectOpenHandles --runInBand",
     "lint": "eslint ./src/**/*.ts",
     "lint-fix": "eslint --fix src/**/*.ts",
     "pretty": "prettier --write 'src/**/*.ts'",
