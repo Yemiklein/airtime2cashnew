@@ -1,10 +1,7 @@
 import 'dotenv/config';
 import app from '../app';
 import supertest from 'supertest';
-import { userInstance } from '../model/userModel';
 import db from '../config/database.config';
-import bcrypt from 'bcryptjs';
-import { response } from 'express';
 
 const request = supertest(app);
 
@@ -71,6 +68,12 @@ describe('user test', () => {
   });
 
   // it('forgot password', async () => {
+  //     const response = await request.post('/user/forgetPassword').send({
+  //     email: 'podf@example.com',
+  //   });
 
+  //   expect(response.status).toBe(200);
+  //   expect(response.body.msg).toBe('Reset password token sent to your email');
+  //   expect(response.body).toHaveProperty('token');
   // })
 });

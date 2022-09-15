@@ -33,7 +33,7 @@ export const emailTemplate = (emailData:Record<string, string>, res:express.Resp
           message: 'An error occurred',
           err,
         });
-      } else { 
+      } else {
         res.status(200).json({
           message: 'email sent successfully',
           info,
