@@ -182,7 +182,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
     emailTemplate(emailData, res, req);
     res.status(200).json({
       msg: 'Reset password token sent to your email',
-      token,
+      resetPasswordToken,
     });
   } catch (err) {
     console.log(err);

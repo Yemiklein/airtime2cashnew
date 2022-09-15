@@ -29,12 +29,12 @@ export const emailTemplate = (emailData:Record<string, string>, res:express.Resp
     transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
 
-        res.status(400).json({
+        return res.status(400).json({
           message: 'An error occurred',
           err,
         });
-      } else { 
-        res.status(200).json({
+      } else {
+        return res.status(200).json({
           message: 'email sent successfully',
           info,
         });
