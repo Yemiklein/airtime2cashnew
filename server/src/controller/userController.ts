@@ -97,14 +97,12 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
   try {
     const { email } = req.body;
     const user = await userInstance.findOne({ where: { email } });
-    console.log(req.body.email)
-    if (!user) {
+      if (!user) {
       return res.status(409).json({
         message: 'User not found',
       });
     }
     const token = uuidv4();
-    const resetPasswordToken = await userInstance.update({ token }, { where: { email: email } });
     const link = `${process.env.FRONTEND_URL}/reset/${token}`;
     const emailData = {
       to: email,
@@ -128,8 +126,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
       token,
     });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({
+  res.status(500).json({
       msg: 'failed to send reset password token',
       route: '/forgetPassword',
     });
