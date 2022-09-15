@@ -14,8 +14,8 @@ import { emailTemplate } from './emailController';
 import cloudinary from 'cloudinary';
 
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
-  const id = uuidv4();
   try {
+    const ID = uuidv4()
     const validationResult = signUpSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -28,9 +28,23 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
         msg: 'Email is used, please change email',
       });
     }
+
+    const duplicateUsername = await userInstance.findOne({ where: { userName: req.body.userName } });
+    if (duplicateUsername) {
+      return res.status(409).json({
+        msg: 'Username is used, please change username',
+      });
+    }
+
+    const duplicatePhone = await userInstance.findOne({ where: { phoneNumber: req.body.phoneNumber } });
+    if (duplicatePhone) {
+      return res.status(409).json({
+        msg: 'Phone number is used, please change phone number',
+      });
+    }
     const passwordHash = await bcrypt.hash(req.body.password, 10);
     const record = await userInstance.create({
-      id: id,
+      id: ID,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       userName: req.body.userName,
@@ -40,11 +54,42 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       avatar: req.body.avatar,
       isVerified: req.body.isVerified,
     });
+
+    const { userName, email, phoneNumber} = req.body
+
+    const link = `${process.env.FRONTEND_URL}/verify/${record.id}`;
+    const emailData = {
+      to: req.body.email,
+      subject: 'Verify Email',
+      html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+            margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
+            <p>Please Follow the link by clicking on the button to verify your email
+             </p>
+             <div style='text-align:center ;'>
+               <a href=${link}
+              style="background: #277BC0; text-decoration: none; color: white;
+               padding: 10px 20px; margin: 10px 0;
+              display: inline-block;">Click here</a>
+             </div>
+          </div>`,
+    };
+    emailTemplate(emailData, res, req);
+
+    console.log(req.body)
     return res.status(201).json({
       message: 'Successfully created a user',
-      record,
+      record: {
+        id: record.id,
+        userName,
+        phoneNumber,
+        email,
+        avatar: record.avatar,
+        isVerified: record.isVerified
+      }
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({
       msg: 'failed to register',
       route: '/register',
@@ -52,8 +97,38 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
   }
 }
 
+export async function verifyUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+    const user = await userInstance.findOne({ where: { id } });
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+    const verifiedUser = await userInstance.update({ isVerified: true }, { where: { id } });
+    return res.status(200).json({
+      message: 'Email verified successfully',
+      record: {
+        email: user.email,
+        userName: user.userName,
+        phoneNumber: user.phoneNumber,
+        avatar: user.avatar,
+        isVerified: user.isVerified
+      }
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      message: 'failed to verify user',
+      route: '/verify/:id',
+    });
+  }
+}
+
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
+    console.log(req.body)
     cloudinary.v2.config({
       cloudName: process.env.CLOUDINARY_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY,
@@ -158,7 +233,6 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
   try {
     const { email } = req.body;
     const user = await userInstance.findOne({ where: { email } });
-    console.log(req.body.email);
     if (!user) {
       return res.status(409).json({
         message: 'User not found',
@@ -173,7 +247,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
       html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
             margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
             <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
-            <p>Please Follow the link by clicking on the button to verify your email
+            <p>Please Follow the link by clicking on the button to change your password
              </p>
              <div style='text-align:center ;'>
                <a href=${link}

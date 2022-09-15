@@ -15,7 +15,9 @@ interface userAttributes{
     token?:string;
 }
 
-export class userInstance extends Model<userAttributes>{}
+export class userInstance extends Model<userAttributes>{
+  [x: string]: any;
+}
 
 userInstance.init({
     id:{
@@ -50,6 +52,7 @@ lastName:{
 userName:{
     type:DataTypes.STRING,
     allowNull:false,
+    unique: true,
     validate:{
     notNull:{
             msg:"last name is required"
@@ -74,7 +77,8 @@ email:{
 },
 phoneNumber:{
     type:DataTypes.STRING,
-    allowNull:false
+    allowNull:false,
+    unique: true,
 },
 password:{
     type:DataTypes.STRING,

@@ -16,6 +16,8 @@ beforeAll(async () => {
     });
 });
 
+jest.setTimeout(6000)
+
 describe('user test', () => {
   it('create user successfully', async () => {
     const response = await request.post('/user/register').send({
