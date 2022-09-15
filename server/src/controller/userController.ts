@@ -1,13 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  signUpSchema,
-  updateUserSchema,
-  options,
-  agenerateToken,
-  loginSchema,
-  resetPasswordSchema,
-} from '../utils/utils';
+import { signUpSchema, updateUserSchema, options, agenerateToken, loginSchema, resetPasswordSchema } from '../utils/utils';
 import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
@@ -74,7 +67,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
              </div>
           </div>`,
     };
-    emailTemplate(emailData, res, req);
+    emailTemplate(emailData);
 
     console.log(req.body)
     return res.status(201).json({
@@ -239,7 +232,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
       });
     }
     const token = uuidv4();
-    const resetPasswordToken = await userInstance.update({ token }, { where: { email: email } });
+    const resetPasswordToken = await userInstance.update({ token }, { where: { email } });
     const link = `${process.env.FRONTEND_URL}/reset/${token}`;
     const emailData = {
       to: email,
@@ -257,13 +250,23 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
              </div>
           </div>`,
     };
-    emailTemplate(emailData, res, req);
-    return res.status(200).json({
-      msg: 'Reset password token sent to your email',
-      token,
+    emailTemplate(emailData).then((emailStatus) => {
+      res.status(200).json({
+        msg: 'Reset password token sent to your email',
+        token,
+        resetPasswordToken,
+        emailStatus
+      });
+    }).catch((err) => {
+      res.status(500).json({
+        msg: 'Server error',
+        err,
+      });
     });
+
+
   } catch (err) {
-    return res.status(500).json({
+    res.status(500).json({
       msg: 'failed to send reset password token',
       route: '/forgetPassword',
     });
@@ -274,6 +277,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
   try {
     const { token, password } = req.body;
     const validate = resetPasswordSchema.validate(req.body, options);
+
     if (validate.error) {
       return res.status(400).json({ Error: validate.error.details[0].message });
     }
