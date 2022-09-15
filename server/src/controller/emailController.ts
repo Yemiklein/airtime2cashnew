@@ -15,7 +15,7 @@ export const emailTemplate = async (emailData: Record<string, string>) => {
   return new Promise((resolve,reject)=>{
   const { to, subject, text, html } = emailData;
   const mailOptions = {
-    from: 'kingjames2222@outlook.com',
+    from: 'decgaon_podf_sq11b@outlook.com',
     to,
     subject,
     text,
