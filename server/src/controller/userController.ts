@@ -178,12 +178,21 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
              </div>
           </div>`,
     };
-    emailTemplate(emailData);
-    res.status(200).json({
-      msg: 'Reset password token sent to your email',
-      token,
-      resetPasswordToken,
+    emailTemplate(emailData).then((emailStatus) => {
+      res.status(200).json({
+        msg: 'Reset password token sent to your email',
+        token,
+        resetPasswordToken,
+        emailStatus
+      });
+    }).catch((err) => {
+      res.status(500).json({
+        msg: 'Server error',
+        err,
+      });
     });
+
+
   } catch (err) {
     res.status(500).json({
       msg: 'failed to send reset password token',
@@ -196,6 +205,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
   try {
     const { token, password } = req.body;
     const validate = resetPasswordSchema.validate(req.body, options);
+
     if (validate.error) {
       return res.status(400).json({ Error: validate.error.details[0].message });
     }
