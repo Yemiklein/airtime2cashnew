@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { signUpSchema, options, agenerateToken, loginSchema,resetPasswordSchema } from '../utils/utils';
+import { signUpSchema, options, agenerateToken, loginSchema, resetPasswordSchema } from '../utils/utils';
 import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
@@ -97,12 +97,13 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
   try {
     const { email } = req.body;
     const user = await userInstance.findOne({ where: { email } });
-      if (!user) {
+    if (!user) {
       return res.status(409).json({
         message: 'User not found',
       });
     }
     const token = uuidv4();
+    const resetPasswordToken = await userInstance.update({ token }, { where: { email } });
     const link = `${process.env.FRONTEND_URL}/reset/${token}`;
     const emailData = {
       to: email,
@@ -124,9 +125,10 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
     res.status(200).json({
       msg: 'Reset password token sent to your email',
       token,
+      resetPasswordToken,
     });
   } catch (err) {
-  res.status(500).json({
+    res.status(500).json({
       msg: 'failed to send reset password token',
       route: '/forgetPassword',
     });
@@ -138,7 +140,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     const { token, password } = req.body;
     const validate = resetPasswordSchema.validate(req.body, options);
     if (validate.error) {
-        return res.status(400).json({ Error: validate.error.details[0].message });
+      return res.status(400).json({ Error: validate.error.details[0].message });
     }
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
