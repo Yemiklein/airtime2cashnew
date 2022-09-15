@@ -22,19 +22,30 @@ export const emailTemplate = (emailData:Record<string, string>, res:express.Resp
   try{
     const validationResult = sendEmail.validate(emailData, options);
     if (validationResult.error) {
+      console.log(
+     validationResult.error.details[0].message,
+
+      )
+    // return JSON.stringify({
+    //   Error: validationResult.error.details[0].message,
+
+    // })
       return res.status(400).json({
         Error: validationResult.error.details[0].message,
       });
     }
     transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
+console.log(err);
 
-        res.status(400).json({
+        return JSON.stringify({
           message: 'An error occurred',
           err,
         });
       } else { 
-        res.status(200).json({
+        console.log(info);
+        
+        return JSON.stringify({
           message: 'email sent successfully',
           info,
         });
