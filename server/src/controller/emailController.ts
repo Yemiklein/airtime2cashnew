@@ -1,6 +1,7 @@
 import express from 'express';
 import nodemailer from 'nodemailer';
-import {sendEmail,options,} from "../utils/utils";
+import { sendEmail, options } from '../utils/utils';
+
 // EMAIL SERVER CONFIGURATION
 let transporter = nodemailer.createTransport({
   service: 'hotmail',
@@ -10,7 +11,8 @@ let transporter = nodemailer.createTransport({
   },
 });
 // EMAIL SENDING FUNCTION
-export const emailTemplate = (emailData:Record<string, string>, res:express.Response, req:express.Request) => {
+export const emailTemplate = async (emailData: Record<string, string>) => {
+  return new Promise((resolve,reject)=>{
   const { to, subject, text, html } = emailData;
   const mailOptions = {
     from: 'decgaon_podf_sq11b@outlook.com',
@@ -19,43 +21,36 @@ export const emailTemplate = (emailData:Record<string, string>, res:express.Resp
     text,
     html,
   };
-  try{
-    const validationResult = sendEmail.validate(emailData, options);
+  try {
+    const validationResult =  sendEmail.validate(emailData, options);
     if (validationResult.error) {
-      console.log(
-     validationResult.error.details[0].message,
-
-      )
-    // return JSON.stringify({
-    //   Error: validationResult.error.details[0].message,
-
-    // })
-      return res.status(400).json({
+      reject ({
         Error: validationResult.error.details[0].message,
       });
     }
     transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
-console.log(err);
-
-        return JSON.stringify({
+        reject ({
           message: 'An error occurred',
           err,
         });
-      } else { 
-        console.log(info);
-        
-        return JSON.stringify({
+      } else {
+        resolve({
           message: 'email sent successfully',
           info,
         });
       }
     });
-  }catch(err){
-    console.log(err)
+  } catch (err) {
+    console.log(err);
   }
-}
+  })
+};
 // DYNAMIC EMAIL SENDING FUNCTION
 export async function sendMail(req: express.Request, res: express.Response) {
-  emailTemplate(req.body, res, req);
+    emailTemplate(req.body).then(data=>{
+      res.status(200).json(data);
+    }).catch(err=>{
+      res.status(500).json(err);
+    });
 }
