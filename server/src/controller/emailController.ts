@@ -1,6 +1,7 @@
 import express from 'express';
 import nodemailer from 'nodemailer';
-import {sendEmail,options,} from "../utils/utils";
+import { sendEmail, options } from '../utils/utils';
+
 // EMAIL SERVER CONFIGURATION
 let transporter = nodemailer.createTransport({
   service: 'hotmail',
@@ -10,41 +11,46 @@ let transporter = nodemailer.createTransport({
   },
 });
 // EMAIL SENDING FUNCTION
-export const emailTemplate = (emailData:Record<string, string>, res:express.Response, req:express.Request) => {
+export const emailTemplate = async (emailData: Record<string, string>) => {
+  return new Promise((resolve,reject)=>{
   const { to, subject, text, html } = emailData;
   const mailOptions = {
-    from: 'decgaon_podf_sq11b@outlook.com',
+    from: 'kingjames2222@outlook.com',
     to,
     subject,
     text,
     html,
   };
-  try{
-    const validationResult = sendEmail.validate(emailData, options);
+  try {
+    const validationResult =  sendEmail.validate(emailData, options);
     if (validationResult.error) {
-      return res.status(400).json({
+      reject ({
         Error: validationResult.error.details[0].message,
       });
     }
     transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
-
-        return res.status(400).json({
+        reject ({
           message: 'An error occurred',
           err,
         });
       } else {
-        return res.status(200).json({
+        resolve({
           message: 'email sent successfully',
           info,
         });
       }
     });
-  }catch(err){
-    console.log(err)
+  } catch (err) {
+    console.log(err);
   }
-}
+  })
+};
 // DYNAMIC EMAIL SENDING FUNCTION
 export async function sendMail(req: express.Request, res: express.Response) {
-  emailTemplate(req.body, res, req);
+    emailTemplate(req.body).then(data=>{
+      res.status(200).json(data);
+    }).catch(err=>{
+      res.status(500).json(err);
+    });
 }

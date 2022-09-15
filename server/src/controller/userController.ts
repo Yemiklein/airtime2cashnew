@@ -179,7 +179,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
              </div>
           </div>`,
     };
-    emailTemplate(emailData, res, req);
+    // emailTemplate(emailData, res, req);
     res.status(200).json({
       msg: 'Reset password token sent to your email',
       resetPasswordToken,
