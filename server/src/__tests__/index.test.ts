@@ -1,10 +1,7 @@
 import 'dotenv/config';
 import app from '../app';
 import supertest from 'supertest';
-import { userInstance } from '../model/userModel';
 import db from '../config/database.config';
-import bcrypt from 'bcryptjs';
-import { response } from 'express';
 
 const request = supertest(app);
 
@@ -18,6 +15,8 @@ beforeAll(async () => {
       console.log(err);
     });
 });
+
+jest.setTimeout(6000);
 
 describe('user test', () => {
   it('create user successfully', async () => {
@@ -70,7 +69,12 @@ describe('user test', () => {
     expect(response.body).toHaveProperty('updatedRecord');
   });
 
-  // it('forgot password', async () => {
+  it('forgot password', async () => {
+    const response = await request.post('/user/forgetPassword').send({
+      email: 'podf@example.com',
+    });
 
-  // })
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('Password reset successfully');
+  });
 });
