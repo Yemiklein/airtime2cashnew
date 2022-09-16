@@ -11,7 +11,8 @@ import {
 import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
-import cloudinary from 'cloudinary';
+import cloudinary from 'cloudinary' 
+
 
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   const id = uuidv4();
@@ -28,6 +29,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
         msg: 'Email is used, please change email',
       });
     }
+    const token = uuidv4()
     const passwordHash = await bcrypt.hash(req.body.password, 10);
     const record = await userInstance.create({
       id: id,
@@ -39,18 +41,58 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       password: passwordHash,
       avatar: req.body.avatar,
       isVerified: req.body.isVerified,
+      token
     });
-
-    res.status(201).json({
-      message: 'Successfully created a user',
+    
+    const emailData = {
+      to: req.body.email,
+      subject: 'Verify Email',
+      html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+            margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
+            <p>Please Follow the link by clicking on the button to verify your email
+             </p>
+             <div style='text-align:center ;'>
+               <a href="http://localhost:7000/user/verify/${token}"
+              style="background: #277BC0; text-decoration: none; color: white;
+               padding: 10px 20px; margin: 10px 0;
+              display: inline-block;">Click here</a>
+             </div>
+          </div>`,
+    };
+    emailTemplate(emailData).then((result)=>{console.log(result)
+    return res.status(201).json({
+      message: 'Successfully created a user, please verify from your email',
       record,
-    });
+      token,
+    })}
+    ).catch((err)=>console.log(err)
+    )
+
+    
   } catch (err) {
     console.log(err);
     res.status(500).json({
       msg: 'failed to register',
       route: '/register',
     });
+  }
+}
+
+export async function verifyUser (req:Request|any, res:Response, next:NextFunction){
+  try {
+      const user = await userInstance.findOne({where:{token:req.params.token}})
+      
+      if(!user){
+          return res.status(404).json({msg:"user not found"})
+      }
+     
+      await user.update({isVerified:true, token:"null"})
+      return res.status(200).json({msg:"user verified"})
+  } catch (error) {
+console.log(error);
+
+      return res.status(500).json({msg:"failed to verify user"})
   }
 }
 

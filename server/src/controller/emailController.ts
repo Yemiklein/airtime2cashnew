@@ -11,39 +11,39 @@ let transporter = nodemailer.createTransport({
 });
 // EMAIL SENDING FUNCTION
 export const emailTemplate = async (emailData: Record<string, string>) => {
-  return new Promise((resolve, reject) => {
-    const { to, subject, text, html } = emailData;
-    const mailOptions = {
-      from: process.env.EMAIL_USERNAME as string,
-      to,
-      subject,
-      text,
-      html,
-    };
-    try {
-      const validationResult = sendEmail.validate(emailData, options);
-      if (validationResult.error) {
-        reject({
-          Error: validationResult.error.details[0].message,
+  return new Promise((resolve,reject)=>{
+  const { to, subject, text, html } = emailData;
+  const mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to,
+    subject,
+    text,
+    html,
+  };
+  try {
+    const validationResult =  sendEmail.validate(emailData, options);
+    if (validationResult.error) {
+      reject ({
+        Error: validationResult.error.details[0].message,
+      });
+    }
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        reject ({
+          message: 'An error occurred',
+          err,
+        });
+      } else {
+        resolve({
+          message: 'email sent successfully',
+          info,
         });
       }
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          reject({
-            message: 'An error occurred',
-            err,
-          });
-        } else {
-          resolve({
-            message: 'email sent successfully',
-            info,
-          });
-        }
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  });
+    });
+  } catch (err) {
+    console.log(err);
+  }
+  })
 };
 // DYNAMIC EMAIL SENDING FUNCTION
 export async function sendMail(req: express.Request, res: express.Response) {
