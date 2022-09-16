@@ -16,9 +16,7 @@ beforeAll(async () => {
     });
 });
 
-
-
-jest.setTimeout(7000)
+jest.setTimeout(6000);
 
 describe('user test', () => {
   it('create user successfully', async () => {
@@ -72,17 +70,11 @@ describe('user test', () => {
   });
 
   it('forgot password', async () => {
-      const response = await request.post('/user/forgetPassword').send({
+    const response = await request.post('/user/forgetPassword').send({
       email: 'podf@example.com',
     });
 
-    //   const reset = await request.post('/user/forgetPassword').send({
-    //   token: 'jhgfxcgbhnjjhgghj9876dfgdf',
-    //   password: 'abcd',
-    //   confirmPassword: 'abcd'
-    // });
-
     expect(response.status).toBe(200);
-    // expect(response.body.msg).toBe('Password reset successfully');
-  })
+    expect(response.body.message).toBe('Password reset successfully');
+  });
 });

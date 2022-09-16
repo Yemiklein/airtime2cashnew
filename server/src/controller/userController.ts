@@ -1,10 +1,10 @@
-import express, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import {
   signUpSchema,
   updateUserSchema,
   options,
-  agenerateToken,
+  generateToken,
   loginSchema,
   resetPasswordSchema,
 } from '../utils/utils';
@@ -15,7 +15,7 @@ import cloudinary from 'cloudinary';
 
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const ID = uuidv4();
+    const id = uuidv4();
     const validationResult = signUpSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -25,27 +25,27 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
     const duplicateEmail = await userInstance.findOne({ where: { email: req.body.email } });
     if (duplicateEmail) {
       return res.status(409).json({
-        msg: 'Email is used, please change email',
+        message: 'Email is used, please change email',
       });
     }
 
     const duplicateUsername = await userInstance.findOne({ where: { userName: req.body.userName } });
     if (duplicateUsername) {
       return res.status(409).json({
-        msg: 'Username is used, please change username',
+        message: 'Username is used, please change username',
       });
     }
 
     const duplicatePhone = await userInstance.findOne({ where: { phoneNumber: req.body.phoneNumber } });
     if (duplicatePhone) {
       return res.status(409).json({
-        msg: 'Phone number is used, please change phone number',
+        message: 'Phone number is used, please change phone number',
       });
     }
     const passwordHash = await bcrypt.hash(req.body.password, 10);
     const token = uuidv4();
     const record = await userInstance.create({
-      id: ID,
+      id: id,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       userName: req.body.userName,
@@ -56,8 +56,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       isVerified: req.body.isVerified,
       token,
     });
-
-    const { userName, email, phoneNumber } = req.body;
 
     const link = `${process.env.FRONTEND_URL}/user/verify/${token}`;
     const emailData = {
@@ -78,14 +76,13 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
     };
     emailTemplate(emailData);
 
-    console.log(req.body);
     return res.status(201).json({
       message: 'Successfully created a user',
       record: {
         id: record.id,
-        userName,
-        phoneNumber,
-        email,
+        userName: record.userName,
+        phoneNumber: record.phoneNumber,
+        email: record.email,
         avatar: record.avatar,
         isVerified: record.isVerified,
         token: record.token,
@@ -94,7 +91,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
   } catch (err) {
     console.log(err);
     return res.status(500).json({
-      msg: 'failed to register',
+      message: 'failed to register',
       route: '/register',
     });
   }
@@ -117,9 +114,6 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
       message: 'Email verified successfully',
       record: {
         email: user.email,
-        userName: user.userName,
-        phoneNumber: user.phoneNumber,
-        avatar: user.avatar,
         isVerified: updatedDetails?.isVerified,
       },
     });
@@ -133,7 +127,6 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
 
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
-    console.log(req.body);
     cloudinary.v2.config({
       cloudName: process.env.CLOUDINARY_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY,
@@ -165,7 +158,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 
     if (!record) {
       return res.status(404).json({
-        msg: 'cannot find user',
+        message: 'cannot find user',
       });
     }
     const updatedRecord = await record?.update({
@@ -180,7 +173,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       updatedRecord,
     });
   } catch (err) {
-    return res.status(500).json({ message: 'failed to update user details' });
+    return res.status(500).json({ message: 'failed to update user details', err });
   }
 }
 
@@ -203,15 +196,16 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
       return res.json({ message: 'Username or email is required' });
     }
     if (!validUser) {
-      return res.status(401).json({ msg: 'User is not registered' });
+      return res.status(401).json({ message: 'User is not registered' });
     }
     const { id } = validUser;
-    const token = agenerateToken({ id });
+    const token = generateToken({ id });
     const validatedUser = await bcrypt.compare(req.body.password, validUser.password);
     if (!validatedUser) {
-      return res.status(401).json({ msg: 'failed to login, wrong user name/password inputed' });
+      return res.status(401).json({ message: 'failed to login, wrong user name/password inputed' });
     }
-    if (validatedUser) {
+
+    if (validUser.isVerified && validatedUser) {
       return res
         .cookie('jwt', token, {
           httpOnly: true,
@@ -229,8 +223,9 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
           },
         });
     }
+    return res.status(401).json({ message: 'Please verify your email' });
   } catch (error) {
-    return res.status(500).json({ msg: 'failed to login', route: '/login' });
+    return res.status(500).json({ message: 'failed to login', route: '/login' });
   }
 }
 
@@ -265,21 +260,19 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
     emailTemplate(emailData)
       .then((emailStatus) => {
         res.status(200).json({
-          msg: 'Reset password token sent to your email',
+          message: 'Reset password token sent to your email',
           token,
-          // resetPasswordToken,
-          // emailStatus
         });
       })
       .catch((err) => {
         res.status(500).json({
-          msg: 'Server error',
+          message: 'Server error',
           err,
         });
       });
   } catch (err) {
     res.status(500).json({
-      msg: 'failed to send reset password token',
+      message: 'failed to send reset password token',
       route: '/forgetPassword',
     });
   }
@@ -296,18 +289,18 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
       return res.status(404).json({
-        msg: 'User not found',
+        message: 'User not found',
       });
     }
     const passwordHash = await bcrypt.hash(password, 10);
     const resetPassword = await userInstance.update({ password: passwordHash }, { where: { token } });
     return res.status(200).json({
-      msg: 'Password reset successfully',
+      message: 'Password reset successfully',
       resetPassword,
     });
   } catch (err) {
     return res.status(500).json({
-      msg: 'failed to reset password',
+      message: 'failed to reset password',
       route: '/resetPassword',
     });
   }

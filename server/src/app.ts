@@ -4,10 +4,10 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import db from './config/database.config';
-import mailRouter from './routes/email'
+import mailRouter from './routes/email';
+import cors from 'cors';
 
-// import indexRouter from './routes/index'
-import usersRouter from './routes/users'
+import usersRouter from './routes/users';
 
 db.sync({})
   .then(() => {
@@ -19,25 +19,21 @@ db.sync({})
 
 const app = express();
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'));
 app.use(logger('dev'));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-
 app.use('/api/mail', mailRouter);
 
-app.use("/user",usersRouter);
-
+app.use('/user', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
-
 
 // error handler
 app.use(function (err: HttpError, req: Request, res: Response, next: NextFunction) {
