@@ -16,7 +16,7 @@ beforeAll(async () => {
     });
 });
 
-jest.setTimeout(6000);
+jest.setTimeout(30000);
 
 describe('user test', () => {
   it('create user successfully', async () => {
@@ -35,9 +35,29 @@ describe('user test', () => {
     expect(response.body).toHaveProperty('record');
   });
 
+  it('successfully verifies a user', async () => {
+      const response = await request.post('/user/register').send({
+      firstName: 'POD',
+      lastName: 'F',
+      userName: 'podf-test',
+      email: 'podf@test.com',
+      phoneNumber: '08123456743',
+      password: 'abcd',
+      confirmPassword: 'abcd',
+    });
+
+    const token = response.body.record.token
+
+    const verified = await request.get(`/user/verify/${token}`)
+
+    expect(verified.body.message).toBe('Email verified successfully')
+    expect(verified.body.record.email).toBe(response.body.record.email)
+    expect(verified.body.record.isVerified).toBe(true)
+  })
+
   it('login user successfully', async () => {
     const response = await request.post('/user/login').send({
-      email: 'podf@example.com',
+      email: 'podf@test.com',
       password: 'abcd',
     });
 
@@ -49,7 +69,7 @@ describe('user test', () => {
 
   it('update user profile', async () => {
     const user = await request.post('/user/login').send({
-      email: 'podf@example.com',
+      email: 'podf@test.com',
       password: 'abcd',
     });
 
@@ -59,7 +79,7 @@ describe('user test', () => {
       .send({
         firstName: 'POD',
         lastName: 'F',
-        phoneNumber: '08123456789',
+        phoneNumber: '0812349876',
         avatar:
           'https://static.vecteezy.com/system/resources/thumbnails/005/129/844/small/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg',
       });
@@ -71,10 +91,10 @@ describe('user test', () => {
 
   it('forgot password', async () => {
     const response = await request.post('/user/forgetPassword').send({
-      email: 'podf@example.com',
+      email: 'podf@test.com',
     });
 
     expect(response.status).toBe(200);
-    expect(response.body.message).toBe('Password reset successfully');
+    expect(response.body.message).toBe('Reset password token sent to your email');
   });
 });
