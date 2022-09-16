@@ -20,69 +20,69 @@ userInstance.init(
       primaryKey: true,
       allowNull: false,
     },
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'full name is required',
+firstName: {
+    type:DataTypes.STRING,
+    allowNull:false,
+    validate:{
+    notNull:{
+            msg:"full name is required"
+            },
+    notEmpty:{
+            msg:"Please provide full name"
+            }
+    }
+},
+lastName:{
+    type:DataTypes.STRING,
+    allowNull:false,
+    validate:{
+    notNull:{
+            msg:"last name is required"
+            },
+    notEmpty:{
+            msg:"Please provide last name"
+            }
+    }
+},
+userName:{
+    type:DataTypes.STRING,
+    allowNull:false,
+    validate:{
+    notNull:{
+            msg:"last name is required"
+            },
+    notEmpty:{
+            msg:"Please provide last name"
+            }
+    }
+},
+email:{
+    type:DataTypes.STRING,
+    allowNull:false,
+    unique: true,
+    validate:{
+    notNull:{
+            msg:"email is required"
+            },
+    isEmail:{
+            msg:"Please provide a valid email"
+            }
+    }
+},
+phoneNumber:{
+    type:DataTypes.STRING,
+    allowNull:false
+},
+password:{
+    type:DataTypes.STRING,
+    allowNull:false,
+    unique: true,
+    validate:{
+        notNull:{
+            msg:"password is required"
         },
         notEmpty: {
           msg: 'Please provide full name',
-        },
-      },
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'last name is required',
-        },
-        notEmpty: {
-          msg: 'Please provide last name',
-        },
-      },
-    },
-    userName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'last name is required',
-        },
-        notEmpty: {
-          msg: 'Please provide last name',
-        },
-      },
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        notNull: {
-          msg: 'email is required',
-        },
-        isEmail: {
-          msg: 'Please provide a valid email',
-        },
-      },
-    },
-    phoneNumber: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        notNull: {
-          msg: 'password is required',
-        },
-        notEmpty: {
-          msg: 'Please provide a password',
         },
       },
     },
@@ -102,6 +102,6 @@ userInstance.init(
   },
   {
     sequelize: db,
-    tableName: 'Users',
-  },
-);
+    tableName:"Users"
+
+})

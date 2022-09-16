@@ -1,17 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  signUpSchema,
-  updateUserSchema,
-  options,
-  agenerateToken,
-  loginSchema,
-  resetPasswordSchema,
-} from '../utils/utils';
+import { signUpSchema, options, agenerateToken, loginSchema, resetPasswordSchema } from '../utils/utils';
 import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
-import cloudinary from 'cloudinary';
 
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   const id = uuidv4();
@@ -40,7 +32,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       avatar: req.body.avatar,
       isVerified: req.body.isVerified,
     });
-
     res.status(201).json({
       message: 'Successfully created a user',
       record,
@@ -53,60 +44,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
     });
   }
 }
-
-export async function updateUser(req: Request, res: Response, next: NextFunction) {
-  try {
-    cloudinary.v2.config({
-      cloudName: process.env.CLOUDINARY_NAME,
-      apiKey: process.env.CLOUDINARY_API_KEY,
-      apiSecret: process.env.CLOUDINARY_API_SECRET,
-    });
-
-    const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
-      //formats allowed for download
-      allowed_formats: ['jpg', 'png', 'svg', 'jpeg'],
-      //generates a new id for each uploaded image
-      public_id: '',
-      //fold where the images are stored
-      folder: 'live-project-podf',
-    });
-    if (!result) {
-      throw new Error('Image is not a valid format. Only jpg, png, svg and jpeg allowed');
-    }
-    const { id } = req.params;
-    const record = await userInstance.findOne({ where: { id } });
-
-    const { firstName, lastName, phoneNumber } = req.body;
-    const validationResult = updateUserSchema.validate(req.body, options);
-
-    if (validationResult.error) {
-      return res.status(400).json({
-        Error: validationResult.error.details[0].message,
-      });
-    }
-
-    if (!record) {
-      return res.status(404).json({
-        msg: 'cannot find user',
-      });
-    }
-    const updatedRecord = await record?.update({
-      firstName,
-      lastName,
-      phoneNumber,
-      avatar: result.url,
-    });
-
-    return res.status(202).json({
-      message: 'successfully updated user details',
-      updatedRecord,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'failed to update user details' });
-  }
-}
-
 export async function userLogin(req: Request, res: Response, next: NextFunction) {
   try {
     const validate = loginSchema.validate(req.body, options);
@@ -142,8 +79,7 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
         })
         .status(200)
         .json({
-          message: 'Successfully logged in',
-          id,
+          msg: 'Successfully logged in',
           token,
           user_info: {
             name: `${validUser.firstName} ${validUser.lastName}`,
@@ -161,13 +97,14 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
   try {
     const { email } = req.body;
     const user = await userInstance.findOne({ where: { email } });
+    console.log(req.body.email);
     if (!user) {
       return res.status(409).json({
         message: 'User not found',
       });
     }
     const token = uuidv4();
-    const resetPasswordToken = await userInstance.update({ token }, { where: { email } });
+    const resetPasswordToken = await userInstance.update({ token }, { where: { email: email } });
     const link = `${process.env.FRONTEND_URL}/reset/${token}`;
     const emailData = {
       to: email,
@@ -185,22 +122,13 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
              </div>
           </div>`,
     };
-    emailTemplate(emailData)
-      .then((emailStatus) => {
-        res.status(200).json({
-          msg: 'Reset password token sent to your email',
-          token,
-          resetPasswordToken,
-          emailStatus,
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          msg: 'Server error',
-          err,
-        });
-      });
+    emailTemplate(emailData, res, req);
+    res.status(200).json({
+      msg: 'Reset password token sent to your email',
+      token,
+    });
   } catch (err) {
+    console.log(err);
     res.status(500).json({
       msg: 'failed to send reset password token',
       route: '/forgetPassword',
@@ -212,7 +140,6 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
   try {
     const { token, password } = req.body;
     const validate = resetPasswordSchema.validate(req.body, options);
-
     if (validate.error) {
       return res.status(400).json({ Error: validate.error.details[0].message });
     }
