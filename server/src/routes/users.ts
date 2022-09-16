@@ -11,7 +11,7 @@ router.get('/', function (req, res, next) {
 
 //Routes
 router.post('/register', registerUser);
-router.patch('/verify/:id', verifyUser);
+router.get('/verify/:token', verifyUser);
 router.post('/login', userLogin);
 router.post('/forgetPassword',forgetPassword)
 router.patch('/update/:id', auth, updateUser)

@@ -1,6 +1,13 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { signUpSchema, updateUserSchema, options, agenerateToken, loginSchema, resetPasswordSchema } from '../utils/utils';
+import {
+  signUpSchema,
+  updateUserSchema,
+  options,
+  agenerateToken,
+  loginSchema,
+  resetPasswordSchema,
+} from '../utils/utils';
 import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
@@ -8,7 +15,7 @@ import cloudinary from 'cloudinary';
 
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const ID = uuidv4()
+    const ID = uuidv4();
     const validationResult = signUpSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -36,6 +43,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       });
     }
     const passwordHash = await bcrypt.hash(req.body.password, 10);
+    const token = uuidv4();
     const record = await userInstance.create({
       id: ID,
       firstName: req.body.firstName,
@@ -46,11 +54,12 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       password: passwordHash,
       avatar: req.body.avatar,
       isVerified: req.body.isVerified,
+      token,
     });
 
-    const { userName, email, phoneNumber} = req.body
+    const { userName, email, phoneNumber } = req.body;
 
-    const link = `${process.env.FRONTEND_URL}/verify/${record.id}`;
+    const link = `${process.env.FRONTEND_URL}/user/verify/${token}`;
     const emailData = {
       to: req.body.email,
       subject: 'Verify Email',
@@ -69,7 +78,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
     };
     emailTemplate(emailData);
 
-    console.log(req.body)
+    console.log(req.body);
     return res.status(201).json({
       message: 'Successfully created a user',
       record: {
@@ -78,8 +87,9 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
         phoneNumber,
         email,
         avatar: record.avatar,
-        isVerified: record.isVerified
-      }
+        isVerified: record.isVerified,
+        token: record.token,
+      },
     });
   } catch (err) {
     console.log(err);
@@ -92,14 +102,17 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
 
 export async function verifyUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
-    const user = await userInstance.findOne({ where: { id } });
+    const { token } = req.params;
+    const user = await userInstance.findOne({ where: { token } });
     if (!user) {
       return res.status(404).json({
         message: 'User not found',
       });
     }
-    const verifiedUser = await userInstance.update({ isVerified: true }, { where: { id } });
+    const verifiedUser = await userInstance.update({ isVerified: true, token: 'null' }, { where: { token } });
+
+    const updatedDetails = await userInstance.findOne({ where: { id: user.id } });
+
     return res.status(200).json({
       message: 'Email verified successfully',
       record: {
@@ -107,10 +120,9 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
         userName: user.userName,
         phoneNumber: user.phoneNumber,
         avatar: user.avatar,
-        isVerified: user.isVerified
-      }
+        isVerified: updatedDetails?.isVerified,
+      },
     });
-
   } catch (err) {
     return res.status(500).json({
       message: 'failed to verify user',
@@ -121,7 +133,7 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
 
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
-    console.log(req.body)
+    console.log(req.body);
     cloudinary.v2.config({
       cloudName: process.env.CLOUDINARY_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY,
@@ -250,21 +262,21 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
              </div>
           </div>`,
     };
-    emailTemplate(emailData).then((emailStatus) => {
-      res.status(200).json({
-        msg: 'Reset password token sent to your email',
-        token,
-        resetPasswordToken,
-        emailStatus
+    emailTemplate(emailData)
+      .then((emailStatus) => {
+        res.status(200).json({
+          msg: 'Reset password token sent to your email',
+          token,
+          // resetPasswordToken,
+          // emailStatus
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          msg: 'Server error',
+          err,
+        });
       });
-    }).catch((err) => {
-      res.status(500).json({
-        msg: 'Server error',
-        err,
-      });
-    });
-
-
   } catch (err) {
     res.status(500).json({
       msg: 'failed to send reset password token',

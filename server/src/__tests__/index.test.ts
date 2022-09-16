@@ -16,7 +16,9 @@ beforeAll(async () => {
     });
 });
 
-jest.setTimeout(6000)
+
+
+jest.setTimeout(7000)
 
 describe('user test', () => {
   it('create user successfully', async () => {
@@ -69,13 +71,18 @@ describe('user test', () => {
     expect(response.body).toHaveProperty('updatedRecord');
   });
 
-  // it('forgot password', async () => {
-  //     const response = await request.post('/user/forgetPassword').send({
-  //     email: 'podf@example.com',
-  //   });
+  it('forgot password', async () => {
+      const response = await request.post('/user/forgetPassword').send({
+      email: 'podf@example.com',
+    });
 
-  //   expect(response.status).toBe(200);
-  //   expect(response.body.msg).toBe('Reset password token sent to your email');
-  //   expect(response.body).toHaveProperty('token');
-  // })
+    //   const reset = await request.post('/user/forgetPassword').send({
+    //   token: 'jhgfxcgbhnjjhgghj9876dfgdf',
+    //   password: 'abcd',
+    //   confirmPassword: 'abcd'
+    // });
+
+    expect(response.status).toBe(200);
+    // expect(response.body.msg).toBe('Password reset successfully');
+  })
 });
