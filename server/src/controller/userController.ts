@@ -133,17 +133,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       apiSecret: process.env.CLOUDINARY_API_SECRET,
     });
 
-    const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
-      //formats allowed for download
-      allowed_formats: ['jpg', 'png', 'svg', 'jpeg'],
-      //generates a new id for each uploaded image
-      public_id: '',
-      //fold where the images are stored
-      folder: 'live-project-podf',
-    });
-    if (!result) {
-      throw new Error('Image is not a valid format. Only jpg, png, svg and jpeg allowed');
-    }
+
     const { id } = req.params;
     const record = await userInstance.findOne({ where: { id } });
 
@@ -161,11 +151,26 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
         message: 'cannot find user',
       });
     }
+    let result: Record<string, string> = {};
+    if(req.body.avatar){
+      result = await cloudinary.v2.uploader.upload(req.body.avatar, {
+        //formats allowed for download
+        allowed_formats: ['jpg', 'png', 'svg', 'jpeg'],
+        //generates a new id for each uploaded image
+        public_id: '',
+        //fold where the images are stored
+        folder: 'live-project-podf',
+      });
+      if (!result) {
+        throw new Error('Image is not a valid format. Only jpg, png, svg and jpeg allowed');
+      }
+    }
+
     const updatedRecord = await record?.update({
       firstName,
       lastName,
       phoneNumber,
-      avatar: result.url,
+      avatar: result?.url,
     });
 
     return res.status(202).json({
@@ -173,7 +178,9 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       updatedRecord,
     });
   } catch (err) {
-    return res.status(500).json({ message: 'failed to update user details', err });
+    console.log(err);
+
+    return res.status(500).json({ message: 'failed to update user details, check image format', err });
   }
 }
 
@@ -258,8 +265,8 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
           </div>`,
     };
     emailTemplate(emailData)
-      .then((emailStatus) => {
-        res.status(200).json({
+      .then(() => {
+        return res.status(200).json({
           message: 'Reset password token sent to your email',
           token,
         });
