@@ -20,7 +20,11 @@ export const signUpSchema = Joi.object()
     password: Joi.string()
       .regex(/^[a-zA-Z0-9]{3,30}$/)
       .required(),
-    confirmPassword: Joi.ref('password'),
+    confirmPassword: Joi.any()
+      .equal(Joi.ref('password'))
+      .required()
+      .label('Confirm password')
+      .messages({ 'any.only': '{{#label}} does not match' }),
   })
   .with('password', 'confirmPassword');
 
@@ -42,7 +46,11 @@ export const resetPasswordSchema = Joi.object()
   .keys({
     token: Joi.string(),
     password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/),
-    confirmPassword: Joi.ref('password'),
+    confirmPassword: Joi.any()
+      .equal(Joi.ref('password'))
+      .required()
+      .label('Confirm password')
+      .messages({ 'any.only': '{{#label}} does not match' }),
   })
   .with('password', 'confirmPassword');
 
