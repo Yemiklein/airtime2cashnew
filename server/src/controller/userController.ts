@@ -84,7 +84,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       },
     });
   } catch (err) {
- 
     return res.status(500).json({
       message: 'failed to register',
       route: '/register',
@@ -124,8 +123,11 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       apiSecret: process.env.CLOUDINARY_API_SECRET,
     });
     const { id } = req.params;
+    console.log(req.params);
+
+    console.log('here is the user', id);
     const record = await userInstance.findOne({ where: { id } });
-    const { firstName, lastName, phoneNumber } = req.body;
+    const { firstName, userName, lastName, phoneNumber, avatar } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -153,6 +155,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     }
     const updatedRecord = await record?.update({
       firstName,
+      userName,
       lastName,
       phoneNumber,
       avatar: result?.url,
@@ -168,16 +171,20 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 }
 export async function userLogin(req: Request, res: Response, next: NextFunction) {
   try {
-    const { emailOrUsername, password } = req.body
+    const { emailOrUsername, password } = req.body;
     const validate = loginSchema.validate(req.body, options);
     if (validate.error) {
       return res.status(401).json({ Error: validate.error.details[0].message });
     }
 
-    let validUser = await userInstance.findOne({where: {email: emailOrUsername}}) as unknown as { [key: string]: string };
+    let validUser = (await userInstance.findOne({ where: { email: emailOrUsername } })) as unknown as {
+      [key: string]: string;
+    };
 
-    if(!validUser){
-       validUser = await userInstance.findOne({where: {userName: emailOrUsername}}) as unknown as { [key: string]: string };
+    if (!validUser) {
+      validUser = (await userInstance.findOne({ where: { userName: emailOrUsername } })) as unknown as {
+        [key: string]: string;
+      };
     }
 
     if (!validUser) {
