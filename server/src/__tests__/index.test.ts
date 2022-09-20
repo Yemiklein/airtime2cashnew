@@ -30,7 +30,7 @@ describe('user test', () => {
     expect(response.body).toHaveProperty('record');
   });
   it('successfully verifies a user', async () => {
-    const response = await request.post('/user/register').send({
+      const response = await request.post('/user/register').send({
       firstName: 'POD',
       lastName: 'F',
       userName: 'podf-test',
@@ -39,12 +39,12 @@ describe('user test', () => {
       password: 'abcd',
       confirmPassword: 'abcd',
     });
-    const token = response.body.record.token;
-    const verified = await request.get(`/user/verify/${token}`);
-    expect(verified.body.message).toBe('Email verified successfully');
-    expect(verified.body.record.email).toBe(response.body.record.email);
-    expect(verified.body.record.isVerified).toBe(true);
-  });
+    const token = response.body.record.token
+    const verified = await request.get(`/user/verify/${token}`)
+    expect(verified.body.message).toBe('Email verified successfully')
+    expect(verified.body.record.email).toBe(response.body.record.email)
+    expect(verified.body.record.isVerified).toBe(true)
+  })
   it('login user successfully', async () => {
     const response = await request.post('/user/login').send({
       email: 'podf@test.com',
@@ -76,7 +76,7 @@ describe('user test', () => {
   });
   it('forgot password', async () => {
     const response = await request.post('/user/forgetPassword').send({
-      email: 'podf@test.com',
+      email: 'podf@test.com'
     });
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Reset password token sent to your email');

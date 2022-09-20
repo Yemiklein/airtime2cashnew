@@ -84,7 +84,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       },
     });
   } catch (err) {
-    console.log(err);
+ 
     return res.status(500).json({
       message: 'failed to register',
       route: '/register',
@@ -168,22 +168,18 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 }
 export async function userLogin(req: Request, res: Response, next: NextFunction) {
   try {
+    const { emailOrUsername, password } = req.body
     const validate = loginSchema.validate(req.body, options);
     if (validate.error) {
       return res.status(401).json({ Error: validate.error.details[0].message });
     }
-    let validUser;
-    if (req.body.userName) {
-      validUser = (await userInstance.findOne({
-        where: { userName: req.body.userName },
-      })) as unknown as { [key: string]: string };
-    } else if (req.body.email) {
-      validUser = (await userInstance.findOne({
-        where: { email: req.body.email },
-      })) as unknown as { [key: string]: string };
-    } else {
-      return res.json({ message: 'Username or email is required' });
+
+    let validUser = await userInstance.findOne({where: {email: emailOrUsername}}) as unknown as { [key: string]: string };
+
+    if(!validUser){
+       validUser = await userInstance.findOne({where: {userName: emailOrUsername}}) as unknown as { [key: string]: string };
     }
+
     if (!validUser) {
       return res.status(401).json({ message: 'User is not registered' });
     }
@@ -245,8 +241,8 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
           </div>`,
     };
     emailTemplate(emailData)
-      .then((emailStatus) => {
-        res.status(200).json({
+      .then(() => {
+        return res.status(200).json({
           message: 'Reset password token sent to your email',
           token,
         });
