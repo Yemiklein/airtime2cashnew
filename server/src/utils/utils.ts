@@ -45,7 +45,6 @@ export const loginSchema = Joi.object().keys({
 
 export const resetPasswordSchema = Joi.object()
   .keys({
-    token: Joi.string(),
     password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/),
     confirmPassword: Joi.any()
       .equal(Joi.ref('password'))

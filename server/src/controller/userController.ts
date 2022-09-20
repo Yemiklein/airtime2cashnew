@@ -53,7 +53,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       isVerified: req.body.isVerified,
       token,
     });
-    const link = `${process.env.FRONTEND_URL}/user/verify/${token}`;
+    const link = `${process.env.BACKEND_URL}/user/verify/${token}`;
     const emailData = {
       to: req.body.email,
       subject: 'Verify Email',
@@ -84,7 +84,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       },
     });
   } catch (err) {
- 
+
     return res.status(500).json({
       message: 'failed to register',
       route: '/register',
@@ -102,13 +102,15 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
     }
     const verifiedUser = await userInstance.update({ isVerified: true, token: 'null' }, { where: { token } });
     const updatedDetails = await userInstance.findOne({ where: { id: user.id } });
-    return res.status(200).json({
-      message: 'Email verified successfully',
-      record: {
-        email: user.email,
-        isVerified: updatedDetails?.isVerified,
-      },
-    });
+    res.status(200)
+    // .json({
+    //   message: 'Email verified successfully',
+    //   record: {
+    //     email: user.email,
+    //     isVerified: updatedDetails?.isVerified,
+    //   },
+    // })
+    .redirect(`${process.env.FRONTEND_URL}/login`)
   } catch (err) {
     return res.status(500).json({
       message: 'failed to verify user',
@@ -223,7 +225,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
     }
     const token = uuidv4();
     const resetPasswordToken = await userInstance.update({ token }, { where: { email } });
-    const link = `${process.env.FRONTEND_URL}/reset/${token}`;
+    const link = `${process.env.FRONTEND_URL}/resetpassword/${token}`;
     const emailData = {
       to: email,
       subject: 'Password Reset',
@@ -262,7 +264,8 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
 }
 export async function resetPassword(req: Request, res: Response, next: NextFunction) {
   try {
-    const { token, password } = req.body;
+    const {token} = req.params
+    const { password } = req.body;
     const validate = resetPasswordSchema.validate(req.body, options);
     if (validate.error) {
       return res.status(400).json({ Error: validate.error.details[0].message });
@@ -275,8 +278,9 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     }
     const passwordHash = await bcrypt.hash(password, 10);
     const resetPassword = await userInstance.update({ password: passwordHash }, { where: { token } });
-    return res.status(200).json({
+    return res.status(202).json({
       message: 'Password reset successfully',
+
       resetPassword,
     });
   } catch (err) {
