@@ -29,6 +29,7 @@ export const updateUserSchema = Joi.object().keys({
   lastName: Joi.string(),
   phoneNumber: Joi.string(),
   avatar: Joi.string(),
+  userName: Joi.string(),
 });
 
 export const loginSchema = Joi.object().keys({

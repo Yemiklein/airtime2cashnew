@@ -36,7 +36,7 @@ export const emailTemplate = async (emailData: Record<string, string>) => {
           });
         })
         .catch((err) => {
-          reject({
+          resolve({
             message: 'An error occurred',
             err,
           });
