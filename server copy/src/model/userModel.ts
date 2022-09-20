@@ -9,14 +9,10 @@ interface userAttributes {
   phoneNumber: string;
   password: string;
   avatar: string;
-  isVerified?: Boolean;
+  isVerified: Boolean;
   token?: string;
 }
-
-export class userInstance extends Model<userAttributes> {
-  [x: string]: any;
-}
-
+export class userInstance extends Model<userAttributes> {}
 userInstance.init(
   {
     id: {
@@ -51,7 +47,6 @@ userInstance.init(
     userName: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         notNull: {
           msg: 'last name is required',
@@ -77,7 +72,6 @@ userInstance.init(
     phoneNumber: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
     password: {
       type: DataTypes.STRING,

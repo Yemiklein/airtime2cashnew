@@ -1,7 +1,6 @@
 import express from 'express';
 import nodemailer from 'nodemailer';
 import { sendEmail, options } from '../utils/utils';
-
 // EMAIL SERVER CONFIGURATION
 let transporter = nodemailer.createTransport({
   service: 'hotmail',
