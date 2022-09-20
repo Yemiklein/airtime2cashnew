@@ -89,7 +89,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       },
     });
   } catch (err) {
-    console.log(err);
+ 
     return res.status(500).json({
       message: 'failed to register',
       route: '/register',
