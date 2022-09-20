@@ -6,6 +6,8 @@ import {
   resetPassword,
   userLogin,
   verifyUser,
+  singleUser,
+  allUsers
 } from '../controller/userController';
 import { auth } from '../middleware/auth';
 
@@ -19,4 +21,6 @@ router.post('/forgetPassword', forgetPassword);
 router.patch('/update/:id', auth, updateUser);
 router.patch('/resetPassword', resetPassword);
 
+router.get('/singleUser/:id', singleUser);
+router.get('/allUsers', allUsers);
 export default router;
