@@ -127,7 +127,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     });
     const { id } = req.params;
     const record = await userInstance.findOne({ where: { id } });
-    const { firstName, lastName, phoneNumber } = req.body;
+    const { firstName,avatar,userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -156,6 +156,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     const updatedRecord = await record?.update({
       firstName,
       lastName,
+      userName,
       phoneNumber,
       avatar: result?.url,
     });
