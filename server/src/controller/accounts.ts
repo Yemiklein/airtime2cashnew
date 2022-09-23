@@ -4,7 +4,7 @@ import { AccountInstance } from '../model/accounts';
 import { createAccountSchema, options } from '../utils/utils';
 
 export async function CreateAccount(
-    req: Request,
+    req: Request|any,
     res: Response,
     next: NextFunction
     ) {

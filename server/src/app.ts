@@ -8,6 +8,7 @@ import mailRouter from './routes/email';
 import cors from 'cors';
 
 import usersRouter from './routes/users';
+import accountRouter from './routes/accounts';
 
 db.sync({})
   .then(() => {
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/api/mail', mailRouter);
 
 app.use('/user', usersRouter);
+app.use('/account', accountRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

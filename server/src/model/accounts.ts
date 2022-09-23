@@ -27,7 +27,7 @@ AccountInstance.init(
     },
 
     accountNumber: {
-        unique: true;
+        unique: true,
         type: DataTypes.STRING,
         allowNull: false
     },
