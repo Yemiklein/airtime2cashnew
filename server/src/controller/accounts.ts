@@ -53,6 +53,7 @@ export async function CreateAccount(
 
 export async function getBankAccounts(req: Request|any, res: Response, next: NextFunction) {
     try {
+        console.log('here')
         const userID = req.user.id;
         const account = await AccountInstance.findAll({
             where: { userId: userID },
@@ -83,6 +84,27 @@ export async function deleteBankAccount(req: Request, res: Response, next: NextF
             return res.status(200).json({
                 status: 'success',
                 message: 'Account deleted successfully',
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            status: 'error',
+            message: 'internal server error',
+        });
+    }
+}
+
+export async function getUserAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+        const id = req.params.id;
+        const account = await AccountInstance.findOne({
+            where: { id: id },
+        });
+        if (account) {
+            return res.status(200).json({
+                status: 'success',
+                message: 'Account retrieved successfully',
+                data: account,
             });
         }
     } catch (error) {
