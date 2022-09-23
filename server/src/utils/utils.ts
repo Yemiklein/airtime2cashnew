@@ -68,3 +68,12 @@ export const generateToken = (user: { [key: string]: unknown }): unknown => {
   const expiresIn = process.env.JWT_DURATION as string;
   return jwt.sign(user, pass, { expiresIn });
 };
+
+
+export const createAccountSchema = Joi.object().keys({
+  bankName: Joi.string().required(),
+  accountNumber: Joi.string().required().pattern(/^[0-9]+$/).length(10),
+  accountName: Joi.string().required(),
+  walletBalance: Joi.number()
+    .min(0)
+});
