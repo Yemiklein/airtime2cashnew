@@ -96,21 +96,27 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
     const { token } = req.params;
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      });
+      return res.status(404).redirect(`${process.env.FRONTEND_URL}/${token}`)
+      // .json({
+      //   message: 'User not found',
+      // });
     }
     const verifiedUser = await userInstance.update({ isVerified: true, token: 'null' }, { where: { token } });
-    const updatedDetails = await userInstance.findOne({ where: { id: user.id } });
-    res.status(200)
-    // .json({
-    //   message: 'Email verified successfully',
-    //   record: {
-    //     email: user.email,
-    //     isVerified: updatedDetails?.isVerified,
-    //   },
-    // })
-    .redirect(`${process.env.FRONTEND_URL}/login`)
+    if(verifiedUser){
+      // console.log(verifiedUser)
+      const updatedDetails = await userInstance.findOne({ where: { id: user.id } });
+      return res.status(200).redirect(`${process.env.FRONTEND_URL}/login`)
+
+        // .json({
+        //   message: 'Email verified successfully',
+        //   record: {
+        //     email: user.email,
+        //     isVerified: updatedDetails?.isVerified,
+        //   },
+        // })
+
+
+    }
   } catch (err) {
     return res.status(500).json({
       message: 'failed to verify user',
@@ -244,10 +250,11 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
           </div>`,
     };
     emailTemplate(emailData)
-      .then(() => {
+      .then((email_response) => {
         return res.status(200).json({
           message: 'Reset password token sent to your email',
           token,
+          email_response
         });
       })
       .catch((err) => {
@@ -274,14 +281,13 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
       return res.status(404).json({
-        message: 'User not found',
+        message: 'Invalid Token',
       });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const resetPassword = await userInstance.update({ password: passwordHash }, { where: { token } });
+    const resetPassword = await userInstance.update({ password: passwordHash, token:'null' }, { where: { token } });
     return res.status(202).json({
       message: 'Password reset successfully',
-
       resetPassword,
     });
   } catch (err) {
@@ -291,7 +297,6 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     });
   }
 }
-
 export async function userLogout(req: Request, res: Response, next: NextFunction) {
   try {
     res.cookie('jwt', '', { maxAge: 1 });
@@ -323,7 +328,6 @@ export async function allUsers(req: Request, res: Response, next: NextFunction) 
     return res.status(500).json({ message: 'failed to get users' });
   }
 }
-
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
