@@ -94,11 +94,11 @@ export async function deleteBankAccount(req: Request, res: Response, next: NextF
     }
 }
 
-export async function getUserAccount(req: Request, res: Response, next: NextFunction) {
+export async function getUserAccount(req: Request|any, res: Response, next: NextFunction) {
     try {
-        const id = req.params.id;
+        const userID = req.user.id;
         const account = await AccountInstance.findOne({
-            where: { id: id },
+            where: { userId: userID },
         });
         if (account) {
             return res.status(200).json({

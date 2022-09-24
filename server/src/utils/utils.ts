@@ -71,9 +71,9 @@ export const generateToken = (user: { [key: string]: unknown }): unknown => {
 
 
 export const createAccountSchema = Joi.object().keys({
-  bankName: Joi.string().required(),
-  accountNumber: Joi.string().required().pattern(/^[0-9]+$/).length(10),
-  accountName: Joi.string().required(),
+  bankName: Joi.string().trim().required(),
+  accountNumber: Joi.string().trim().required().pattern(/^[0-9]+$/).length(10),
+  accountName: Joi.string().trim().required(),
   walletBalance: Joi.number()
     .min(0)
 });
