@@ -5,7 +5,6 @@ import { userInstance } from '../model/userModel';
 
 export async function auth(req: Request | any, res: Response, next: NextFunction) {
   try {
- 
     const authorization: string = req.headers.authorization.split(' ')[1];
     if (!authorization) {
       res.status(401).json({

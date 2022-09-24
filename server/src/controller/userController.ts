@@ -53,7 +53,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       isVerified: req.body.isVerified,
       token,
     });
-    const link = `${process.env.FRONTEND_URL}/user/verify/${token}`;
+    const link = `${process.env.BACKEND_URL}/user/verify/${token}`;
     const emailData = {
       to: req.body.email,
       subject: 'Verify Email',
@@ -208,9 +208,12 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
           id,
           token,
           user_info: {
-            name: `${validUser.firstName} ${validUser.lastName}`,
+            firstName: `${validUser.firstName} `,
+            lastName: `${validUser.lastName}`,
+            phoneNumber: `${validUser.phoneNumber}`,
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
+            avatar: `${validUser.avatar}`,
           },
         });
     }

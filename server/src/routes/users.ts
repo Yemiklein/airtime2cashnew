@@ -18,8 +18,7 @@ router.post('/register', registerUser);
 router.get('/verify/:token', verifyUser);
 router.post('/login', userLogin);
 router.post('/forgetPassword', forgetPassword);
-// router.patch('/update/:id', auth, updateUser);
-router.patch('/update/:id', updateUser);
+router.patch('/update/:id', auth, updateUser);
 router.patch('/resetPassword', resetPassword);
 
 router.get('/singleUser/:id', singleUser);
