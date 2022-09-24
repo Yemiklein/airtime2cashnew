@@ -1,7 +1,0 @@
-lib-cov
-node_modules/
-jspm_packages/
-dist
-.env
-coverage
-data.txt
