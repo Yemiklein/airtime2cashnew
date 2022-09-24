@@ -9,7 +9,7 @@ import cors from 'cors';
 
 import usersRouter from './routes/users';
 
-db.sync({})
+db.sync({force: true})
   .then(() => {
     console.log('Database connected successfully 🚀');
   })
