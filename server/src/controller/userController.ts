@@ -213,6 +213,7 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
             name: `${validUser.firstName} ${validUser.lastName}`,
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
+            avatar: `${validUser.avatar}`,
           },
         });
     }
