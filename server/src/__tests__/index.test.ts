@@ -41,13 +41,14 @@ describe('user test', () => {
     });
     const token = response.body.record.token
     const verified = await request.get(`/user/verify/${token}`)
-    expect(verified.body.message).toBe('Email verified successfully')
-    expect(verified.body.record.email).toBe(response.body.record.email)
-    expect(verified.body.record.isVerified).toBe(true)
+    // expect(verified.body.message).toBe('Email verified successfully')
+    // expect(verified.body.record.email).toBe(response.body.record.email)
+    // expect(verified.body.record.isVerified).toBe(true)
+    expect(verified.status).toBe(302)
   })
   it('login user successfully', async () => {
     const response = await request.post('/user/login').send({
-      email: 'podf@test.com',
+      emailOrUsername: 'podf@test.com',
       password: 'abcd',
     });
     expect(response.status).toBe(200);
@@ -57,7 +58,7 @@ describe('user test', () => {
   });
   it('update user profile', async () => {
     const user = await request.post('/user/login').send({
-      email: 'podf@test.com',
+      emailOrUsername : 'podf@test.com',
       password: 'abcd',
     });
     const response = await request

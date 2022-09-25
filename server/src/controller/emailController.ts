@@ -3,11 +3,17 @@ import nodemailer from 'nodemailer';
 import { sendEmail, options } from '../utils/utils';
 // EMAIL SERVER CONFIGURATION
 let transporter = nodemailer.createTransport({
-  service: 'hotmail',
+  // service: 'outlook',
+  port: 587,
+  service: 'outlook',
   auth: {
     user: process.env.EMAIL_USERNAME as string,
     pass: process.env.EMAIL_PASSWORD as string,
   },
+  tls: {
+    rejectUnauthorized: false
+}
+
 });
 // EMAIL SENDING FUNCTION
 export const emailTemplate = async (emailData: Record<string, string>) => {
