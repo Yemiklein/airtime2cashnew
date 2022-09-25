@@ -124,6 +124,62 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
     });
   }
 }
+export async function resendVerificationLink(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email } = req.body;
+    const user = await userInstance.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+    const token = uuidv4();
+    const updatedUser = await userInstance.update({ token }, { where: { email } });
+    if (updatedUser) {
+      const link = `${process.env.BACKEND_URL}/user/verify/${token}`;
+      const emailData = {
+        to: email,
+        subject: 'Verify Email',
+        html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+            margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
+            <p>Please Follow the link by clicking on the button to verify your email
+              </p>
+              <div style='text-align:center ;'>
+                <a href=${link}
+                style="background: #277BC0; text-decoration: none; color: white;
+                padding: 10px 20px; margin: 10px 0;
+                display: inline-block;">Click here</a>
+              </div>
+          </div>`,
+      };
+      emailTemplate(emailData)
+      .then((email_response) => {
+        return res.status(200).json({
+          message: 'Verification link sent successfully',
+          token,
+          email_response
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          message: 'Server error',
+          err,
+        });
+      });
+
+      // return res.status(200).json({
+      //   message: 'Verification link sent successfully',
+      // });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: 'failed to resend verification link',
+      route: '/resend-verification-link',
+    });
+  }
+}
+
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
     cloudinary.v2.config({
