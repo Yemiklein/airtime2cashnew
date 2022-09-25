@@ -5,7 +5,7 @@ import db from '../config/database.config';
 interface AccountAttribute {
     id: string;
     bankName: string;
-    accountNumber: string;
+    accountNumber: number;
     accountName: string;
     userId: string;
     walletBalance: number;
@@ -28,7 +28,7 @@ AccountInstance.init(
 
     accountNumber: {
         unique: true,
-        type: DataTypes.STRING,
+        type: DataTypes.NUMBER,
         allowNull: false
     },
 
