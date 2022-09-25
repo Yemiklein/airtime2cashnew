@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import db from '../config/database.config';
+import {AccountInstance} from './accounts';
 interface userAttributes {
   id: string;
   firstName: string;
@@ -111,3 +112,7 @@ userInstance.init(
     tableName: 'Users',
   },
 );
+
+
+userInstance.hasMany(AccountInstance, {foreignKey: 'userId', as: 'accounts'});
+AccountInstance.belongsTo(userInstance, {foreignKey: 'userId', as: 'user'});
