@@ -95,19 +95,25 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
     const { token } = req.params;
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      });
+      return res.status(404).redirect(`${process.env.FRONTEND_URL}/${token}`);
+      // .json({
+      //   message: 'User not found',
+      // });
     }
     const verifiedUser = await userInstance.update({ isVerified: true, token: 'null' }, { where: { token } });
-    const updatedDetails = await userInstance.findOne({ where: { id: user.id } });
-    return res.status(200).json({
-      message: 'Email verified successfully',
-      record: {
-        email: user.email,
-        isVerified: updatedDetails?.isVerified,
-      },
-    });
+    if (verifiedUser) {
+      // console.log(verifiedUser)
+      const updatedDetails = await userInstance.findOne({ where: { id: user.id } });
+      return res.status(200).redirect(`${process.env.FRONTEND_URL}/login`);
+
+      // .json({
+      //   message: 'Email verified successfully',
+      //   record: {
+      //     email: user.email,
+      //     isVerified: updatedDetails?.isVerified,
+      //   },
+      // })
+    }
   } catch (err) {
     return res.status(500).json({
       message: 'failed to verify user',
@@ -115,6 +121,62 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
     });
   }
 }
+export async function resendVerificationLink(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email } = req.body;
+    const user = await userInstance.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+    const token = uuidv4();
+    const updatedUser = await userInstance.update({ token }, { where: { email } });
+    if (updatedUser) {
+      const link = `${process.env.BACKEND_URL}/user/verify/${token}`;
+      const emailData = {
+        to: email,
+        subject: 'Verify Email',
+        html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+            margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
+            <p>Please Follow the link by clicking on the button to verify your email
+              </p>
+              <div style='text-align:center ;'>
+                <a href=${link}
+                style="background: #277BC0; text-decoration: none; color: white;
+                padding: 10px 20px; margin: 10px 0;
+                display: inline-block;">Click here</a>
+              </div>
+          </div>`,
+      };
+      emailTemplate(emailData)
+        .then((email_response) => {
+          return res.status(200).json({
+            message: 'Verification link sent successfully',
+            token,
+            email_response,
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: 'Server error',
+            err,
+          });
+        });
+
+      // return res.status(200).json({
+      //   message: 'Verification link sent successfully',
+      // });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: 'failed to resend verification link',
+      route: '/resend-verification-link',
+    });
+  }
+}
+
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
     cloudinary.v2.config({
@@ -127,7 +189,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 
     console.log('here is the user', id);
     const record = await userInstance.findOne({ where: { id } });
-    const { firstName, userName, lastName, phoneNumber, avatar } = req.body;
+    const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -233,7 +295,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
     }
     const token = uuidv4();
     const resetPasswordToken = await userInstance.update({ token }, { where: { email } });
-    const link = `${process.env.FRONTEND_URL}/reset/${token}`;
+    const link = `${process.env.FRONTEND_URL}/resetpassword/${token}`;
     const emailData = {
       to: email,
       subject: 'Password Reset',
@@ -251,10 +313,11 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
           </div>`,
     };
     emailTemplate(emailData)
-      .then(() => {
+      .then((email_response) => {
         return res.status(200).json({
           message: 'Reset password token sent to your email',
           token,
+          email_response,
         });
       })
       .catch((err) => {
@@ -272,7 +335,8 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
 }
 export async function resetPassword(req: Request, res: Response, next: NextFunction) {
   try {
-    const { token, password } = req.body;
+    const { token } = req.params;
+    const { password } = req.body;
     const validate = resetPasswordSchema.validate(req.body, options);
     if (validate.error) {
       return res.status(400).json({ Error: validate.error.details[0].message });
@@ -280,12 +344,12 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
       return res.status(404).json({
-        message: 'User not found',
+        message: 'Invalid Token',
       });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const resetPassword = await userInstance.update({ password: passwordHash }, { where: { token } });
-    return res.status(200).json({
+    const resetPassword = await userInstance.update({ password: passwordHash, token: 'null' }, { where: { token } });
+    return res.status(202).json({
       message: 'Password reset successfully',
       resetPassword,
     });
@@ -296,7 +360,6 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     });
   }
 }
-
 export async function userLogout(req: Request, res: Response, next: NextFunction) {
   try {
     res.cookie('jwt', '', { maxAge: 1 });
@@ -328,7 +391,6 @@ export async function allUsers(req: Request, res: Response, next: NextFunction) 
     return res.status(500).json({ message: 'failed to get users' });
   }
 }
-
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;

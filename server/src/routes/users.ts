@@ -8,6 +8,7 @@ import {
   verifyUser,
   singleUser,
   allUsers,
+  resendVerificationLink,
 } from '../controller/userController';
 import { auth } from '../middleware/auth';
 
@@ -19,7 +20,8 @@ router.get('/verify/:token', verifyUser);
 router.post('/login', userLogin);
 router.post('/forgetPassword', forgetPassword);
 router.patch('/update/:id', auth, updateUser);
-router.patch('/resetPassword', resetPassword);
+router.patch('/resetPassword/:token', resetPassword);
+router.patch('/resendVerification', resendVerificationLink);
 
 router.get('/singleUser/:id', singleUser);
 router.get('/allUsers', allUsers);

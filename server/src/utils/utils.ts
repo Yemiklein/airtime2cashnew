@@ -45,7 +45,6 @@ export const loginSchema = Joi.object().keys({
 
 export const resetPasswordSchema = Joi.object()
   .keys({
-    token: Joi.string(),
     password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/),
     confirmPassword: Joi.any()
       .equal(Joi.ref('password'))
@@ -69,3 +68,12 @@ export const generateToken = (user: { [key: string]: unknown }): unknown => {
   const expiresIn = process.env.JWT_DURATION as string;
   return jwt.sign(user, pass, { expiresIn });
 };
+
+
+export const createAccountSchema = Joi.object().keys({
+  bankName: Joi.string().trim().required(),
+  accountNumber: Joi.string().trim().required().pattern(/^[0-9]+$/).length(10),
+  accountName: Joi.string().trim().required(),
+  walletBalance: Joi.number()
+    .min(0)
+});
