@@ -12,6 +12,7 @@ import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
 import cloudinary from 'cloudinary';
+import { AccountInstance } from '../model/accounts';
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
@@ -407,5 +408,37 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
     return res.status(200).json({ message: 'User deleted', deletedUser });
   } catch (err) {
     return res.status(500).json({ message: 'failed to delete user' });
+  }
+}
+
+export async function getUserAccount(req: Request | any, res: Response, next: NextFunction) {
+  try {
+    const {id} = req.params;
+    const user = await userInstance.findOne({ where: { id } });
+    if (!user) {
+      return res.status(404).json({
+        status: 'not found',
+        message: 'user not found',
+      });
+    }
+    const account = await userInstance.findAll({
+      include: [
+        {
+          model: AccountInstance,
+          as: 'accounts',
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Account retrieved successfully',
+      data: account,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
   }
 }

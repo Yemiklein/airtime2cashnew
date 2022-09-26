@@ -43,10 +43,10 @@ export async function CreateAccount(
                 data: record,
             });
         }
-    }catch (error) {
+    }catch (error: any) {
         return res.status(500).json({
             status: 'error',
-            message: 'internal server error',
+            message: error.message
         });
     }
 }
