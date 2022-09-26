@@ -115,4 +115,4 @@ userInstance.init(
 
 
 userInstance.hasMany(AccountInstance, {foreignKey: 'userId', as: 'accounts'});
-AccountInstance.belongsTo(userInstance, {foreignKey: 'userId', as: 'user'});
+AccountInstance.belongsTo(userInstance, {foreignKey: 'userId', as: 'Users'});
