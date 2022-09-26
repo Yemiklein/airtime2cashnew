@@ -85,7 +85,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       },
     });
   } catch (err) {
-
     return res.status(500).json({
       message: 'failed to register',
       route: '/register',
@@ -97,26 +96,24 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
     const { token } = req.params;
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
-      return res.status(404).redirect(`${process.env.FRONTEND_URL}/${token}`)
+      return res.status(404).redirect(`${process.env.FRONTEND_URL}/${token}`);
       // .json({
       //   message: 'User not found',
       // });
     }
     const verifiedUser = await userInstance.update({ isVerified: true, token: 'null' }, { where: { token } });
-    if(verifiedUser){
+    if (verifiedUser) {
       // console.log(verifiedUser)
       const updatedDetails = await userInstance.findOne({ where: { id: user.id } });
-      return res.status(200).redirect(`${process.env.FRONTEND_URL}/login`)
+      return res.status(200).redirect(`${process.env.FRONTEND_URL}/login`);
 
-        // .json({
-        //   message: 'Email verified successfully',
-        //   record: {
-        //     email: user.email,
-        //     isVerified: updatedDetails?.isVerified,
-        //   },
-        // })
-
-
+      // .json({
+      //   message: 'Email verified successfully',
+      //   record: {
+      //     email: user.email,
+      //     isVerified: updatedDetails?.isVerified,
+      //   },
+      // })
     }
   } catch (err) {
     return res.status(500).json({
@@ -132,6 +129,11 @@ export async function resendVerificationLink(req: Request, res: Response, next: 
     if (!user) {
       return res.status(404).json({
         message: 'User not found',
+      });
+    }
+    if (user.isVerified) {
+      return res.status(409).json({
+        message: 'Email already verified',
       });
     }
     const token = uuidv4();
@@ -155,19 +157,19 @@ export async function resendVerificationLink(req: Request, res: Response, next: 
           </div>`,
       };
       emailTemplate(emailData)
-      .then((email_response) => {
-        return res.status(200).json({
-          message: 'Verification link sent successfully',
-          token,
-          email_response
+        .then((email_response) => {
+          return res.status(200).json({
+            message: 'Verification link sent successfully',
+            token,
+            email_response,
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: 'Server error',
+            err,
+          });
         });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: 'Server error',
-          err,
-        });
-      });
 
       // return res.status(200).json({
       //   message: 'Verification link sent successfully',
@@ -189,8 +191,11 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       apiSecret: process.env.CLOUDINARY_API_SECRET,
     });
     const { id } = req.params;
+    console.log(req.params);
+
+    console.log('here is the user', id);
     const record = await userInstance.findOne({ where: { id } });
-    const { firstName,avatar,userName, lastName, phoneNumber } = req.body;
+    const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -218,8 +223,8 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     }
     const updatedRecord = await record?.update({
       firstName,
-      lastName,
       userName,
+      lastName,
       phoneNumber,
       avatar: result?.url,
     });
@@ -234,16 +239,20 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 }
 export async function userLogin(req: Request, res: Response, next: NextFunction) {
   try {
-    const { emailOrUsername, password } = req.body
+    const { emailOrUsername, password } = req.body;
     const validate = loginSchema.validate(req.body, options);
     if (validate.error) {
       return res.status(401).json({ Error: validate.error.details[0].message });
     }
 
-    let validUser = await userInstance.findOne({where: {email: emailOrUsername}}) as unknown as { [key: string]: string };
+    let validUser = (await userInstance.findOne({ where: { email: emailOrUsername } })) as unknown as {
+      [key: string]: string;
+    };
 
-    if(!validUser){
-       validUser = await userInstance.findOne({where: {userName: emailOrUsername}}) as unknown as { [key: string]: string };
+    if (!validUser) {
+      validUser = (await userInstance.findOne({ where: { userName: emailOrUsername } })) as unknown as {
+        [key: string]: string;
+      };
     }
 
     if (!validUser) {
@@ -267,7 +276,9 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
           id,
           token,
           user_info: {
-            name: `${validUser.firstName} ${validUser.lastName}`,
+            firstName: `${validUser.firstName} `,
+            lastName: `${validUser.lastName}`,
+            phoneNumber: `${validUser.phoneNumber}`,
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
             avatar: `${validUser.avatar}`,
@@ -312,7 +323,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
         return res.status(200).json({
           message: 'Reset password token sent to your email',
           token,
-          email_response
+          email_response,
         });
       })
       .catch((err) => {
@@ -330,7 +341,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
 }
 export async function resetPassword(req: Request, res: Response, next: NextFunction) {
   try {
-    const {token} = req.params
+    const { token } = req.params;
     const { password } = req.body;
     const validate = resetPasswordSchema.validate(req.body, options);
     if (validate.error) {
@@ -343,7 +354,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
       });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const resetPassword = await userInstance.update({ password: passwordHash, token:'null' }, { where: { token } });
+    const resetPassword = await userInstance.update({ password: passwordHash, token: 'null' }, { where: { token } });
     return res.status(202).json({
       message: 'Password reset successfully',
       resetPassword,
@@ -400,27 +411,34 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function getUserAccount(req: Request|any, res: Response, next: NextFunction) {
-    try {
-        const { id } = req.params;
-        const account = await userInstance.findAll({
-            where: { id },
-            include: [{
-              model: AccountInstance,
-              as: 'accounts'
-            }]
-        });
-        if (account) {
-            return res.status(200).json({
-                status: 'success',
-                message: 'Account retrieved successfully',
-                data: account,
-            });
-        }
-    } catch (error) {
-        return res.status(500).json({
-            status: 'error',
-            message: error,
-        });
+export async function getUserAccount(req: Request | any, res: Response, next: NextFunction) {
+  try {
+    const {id} = req.params;
+    const user = await userInstance.findOne({ where: { id } });
+    if (!user) {
+      return res.status(404).json({
+        status: 'not found',
+        message: 'user not found',
+      });
     }
+    const account = await userInstance.findAll({
+      include: [
+        {
+          model: AccountInstance,
+          as: 'accounts',
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Account retrieved successfully',
+      data: account,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
+  }
 }
