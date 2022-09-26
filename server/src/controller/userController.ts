@@ -130,6 +130,11 @@ export async function resendVerificationLink(req: Request, res: Response, next: 
         message: 'User not found',
       });
     }
+    if (user.isVerified) {
+      return res.status(409).json({
+        message: 'Email already verified',
+      });
+    }
     const token = uuidv4();
     const updatedUser = await userInstance.update({ token }, { where: { email } });
     if (updatedUser) {
