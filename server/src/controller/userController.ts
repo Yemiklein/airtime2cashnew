@@ -12,6 +12,7 @@ import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
 import cloudinary from 'cloudinary';
+import { AccountInstance } from '../model/accounts';
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
@@ -131,6 +132,11 @@ export async function resendVerificationLink(req: Request, res: Response, next: 
         message: 'User not found',
       });
     }
+    if (user.isVerified) {
+      return res.status(409).json({
+        message: 'Email already verified',
+      });
+    }
     const token = uuidv4();
     const updatedUser = await userInstance.update({ token }, { where: { email } });
     if (updatedUser) {
@@ -186,6 +192,9 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       apiSecret: process.env.CLOUDINARY_API_SECRET,
     });
     const { id } = req.params;
+    console.log(req.params);
+
+    console.log('here is the user', id);
     const record = await userInstance.findOne({ where: { id } });
     const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
@@ -215,8 +224,8 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     }
     const updatedRecord = await record?.update({
       firstName,
-      lastName,
       userName,
+      lastName,
       phoneNumber,
       avatar: result?.url,
     });
@@ -268,7 +277,9 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
           id,
           token,
           user_info: {
-            name: `${validUser.firstName} ${validUser.lastName}`,
+            firstName: `${validUser.firstName} `,
+            lastName: `${validUser.lastName}`,
+            phoneNumber: `${validUser.phoneNumber}`,
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
             avatar: `${validUser.avatar}`,
@@ -398,5 +409,37 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
     return res.status(200).json({ message: 'User deleted', deletedUser });
   } catch (err) {
     return res.status(500).json({ message: 'failed to delete user' });
+  }
+}
+
+export async function getUserAccount(req: Request | any, res: Response, next: NextFunction) {
+  try {
+    const {id} = req.params;
+    const user = await userInstance.findOne({ where: { id } });
+    if (!user) {
+      return res.status(404).json({
+        status: 'not found',
+        message: 'user not found',
+      });
+    }
+    const account = await userInstance.findAll({
+      include: [
+        {
+          model: AccountInstance,
+          as: 'accounts',
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Account retrieved successfully',
+      data: account,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
   }
 }
