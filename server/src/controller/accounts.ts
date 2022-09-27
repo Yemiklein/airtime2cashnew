@@ -106,7 +106,13 @@ export async function getUserAccount(req: Request|any, res: Response, next: Next
                 message: 'Account retrieved successfully',
                 data: account,
             });
+        }else{
+            return res.status(404).json({
+                status: 'error',
+                message: 'Bank accounts not found',
+            });
         }
+
     } catch (error) {
         return res.status(500).json({
             status: 'error',
