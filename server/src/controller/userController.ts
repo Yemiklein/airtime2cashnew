@@ -413,15 +413,10 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
 
 export async function getUserAccount(req: Request | any, res: Response, next: NextFunction) {
   try {
-    const {id} = req.params;
-    const user = await userInstance.findOne({ where: { id } });
-    if (!user) {
-      return res.status(404).json({
-        status: 'not found',
-        message: 'user not found',
-      });
-    }
-    const account = await userInstance.findAll({
+    const { id } = req.params;
+
+    const record = await userInstance.findAll({
+      where: { id },
       include: [
         {
           model: AccountInstance,
@@ -433,7 +428,7 @@ export async function getUserAccount(req: Request | any, res: Response, next: Ne
     return res.status(200).json({
       status: 'success',
       message: 'Account retrieved successfully',
-      data: account,
+      data: record,
     });
   } catch (error) {
     return res.status(500).json({
