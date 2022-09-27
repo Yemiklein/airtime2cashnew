@@ -428,7 +428,7 @@ export async function getUserAccount(req: Request | any, res: Response, next: Ne
     return res.status(200).json({
       status: 'success',
       message: 'Account retrieved successfully',
-      data: record,
+      data: record[0].accounts,
     });
   } catch (error) {
     return res.status(500).json({
