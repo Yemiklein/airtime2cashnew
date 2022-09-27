@@ -12,6 +12,7 @@ import { userInstance } from '../model/userModel';
 import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
 import cloudinary from 'cloudinary';
+import { AccountInstance } from '../model/accounts';
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
@@ -84,7 +85,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       },
     });
   } catch (err) {
-
     return res.status(500).json({
       message: 'failed to register',
       route: '/register',
@@ -96,26 +96,24 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
     const { token } = req.params;
     const user = await userInstance.findOne({ where: { token } });
     if (!user) {
-      return res.status(404).redirect(`${process.env.FRONTEND_URL}/${token}`)
+      return res.status(404).redirect(`${process.env.FRONTEND_URL}/${token}`);
       // .json({
       //   message: 'User not found',
       // });
     }
     const verifiedUser = await userInstance.update({ isVerified: true, token: 'null' }, { where: { token } });
-    if(verifiedUser){
+    if (verifiedUser) {
       // console.log(verifiedUser)
       const updatedDetails = await userInstance.findOne({ where: { id: user.id } });
-      return res.status(200).redirect(`${process.env.FRONTEND_URL}/login`)
+      return res.status(200).redirect(`${process.env.FRONTEND_URL}/login`);
 
-        // .json({
-        //   message: 'Email verified successfully',
-        //   record: {
-        //     email: user.email,
-        //     isVerified: updatedDetails?.isVerified,
-        //   },
-        // })
-
-
+      // .json({
+      //   message: 'Email verified successfully',
+      //   record: {
+      //     email: user.email,
+      //     isVerified: updatedDetails?.isVerified,
+      //   },
+      // })
     }
   } catch (err) {
     return res.status(500).json({
@@ -124,6 +122,67 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
     });
   }
 }
+export async function resendVerificationLink(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email } = req.body;
+    const user = await userInstance.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+    if (user.isVerified) {
+      return res.status(409).json({
+        message: 'Email already verified',
+      });
+    }
+    const token = uuidv4();
+    const updatedUser = await userInstance.update({ token }, { where: { email } });
+    if (updatedUser) {
+      const link = `${process.env.BACKEND_URL}/user/verify/${token}`;
+      const emailData = {
+        to: email,
+        subject: 'Verify Email',
+        html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+            margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
+            <p>Please Follow the link by clicking on the button to verify your email
+              </p>
+              <div style='text-align:center ;'>
+                <a href=${link}
+                style="background: #277BC0; text-decoration: none; color: white;
+                padding: 10px 20px; margin: 10px 0;
+                display: inline-block;">Click here</a>
+              </div>
+          </div>`,
+      };
+      emailTemplate(emailData)
+        .then((email_response) => {
+          return res.status(200).json({
+            message: 'Verification link sent successfully',
+            token,
+            email_response,
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: 'Server error',
+            err,
+          });
+        });
+
+      // return res.status(200).json({
+      //   message: 'Verification link sent successfully',
+      // });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: 'failed to resend verification link',
+      route: '/resend-verification-link',
+    });
+  }
+}
+
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
     cloudinary.v2.config({
@@ -132,8 +191,11 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       apiSecret: process.env.CLOUDINARY_API_SECRET,
     });
     const { id } = req.params;
+    console.log(req.params);
+
+    console.log('here is the user', id);
     const record = await userInstance.findOne({ where: { id } });
-    const { firstName,avatar,userName, lastName, phoneNumber } = req.body;
+    const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -161,8 +223,8 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     }
     const updatedRecord = await record?.update({
       firstName,
-      lastName,
       userName,
+      lastName,
       phoneNumber,
       avatar: result?.url,
     });
@@ -177,16 +239,20 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 }
 export async function userLogin(req: Request, res: Response, next: NextFunction) {
   try {
-    const { emailOrUsername, password } = req.body
+    const { emailOrUsername, password } = req.body;
     const validate = loginSchema.validate(req.body, options);
     if (validate.error) {
       return res.status(401).json({ Error: validate.error.details[0].message });
     }
 
-    let validUser = await userInstance.findOne({where: {email: emailOrUsername}}) as unknown as { [key: string]: string };
+    let validUser = (await userInstance.findOne({ where: { email: emailOrUsername } })) as unknown as {
+      [key: string]: string;
+    };
 
-    if(!validUser){
-       validUser = await userInstance.findOne({where: {userName: emailOrUsername}}) as unknown as { [key: string]: string };
+    if (!validUser) {
+      validUser = (await userInstance.findOne({ where: { userName: emailOrUsername } })) as unknown as {
+        [key: string]: string;
+      };
     }
 
     if (!validUser) {
@@ -210,7 +276,9 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
           id,
           token,
           user_info: {
-            name: `${validUser.firstName} ${validUser.lastName}`,
+            firstName: `${validUser.firstName} `,
+            lastName: `${validUser.lastName}`,
+            phoneNumber: `${validUser.phoneNumber}`,
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
             avatar: `${validUser.avatar}`,
@@ -255,7 +323,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
         return res.status(200).json({
           message: 'Reset password token sent to your email',
           token,
-          email_response
+          email_response,
         });
       })
       .catch((err) => {
@@ -273,7 +341,7 @@ export async function forgetPassword(req: Request, res: Response, next: NextFunc
 }
 export async function resetPassword(req: Request, res: Response, next: NextFunction) {
   try {
-    const {token} = req.params
+    const { token } = req.params;
     const { password } = req.body;
     const validate = resetPasswordSchema.validate(req.body, options);
     if (validate.error) {
@@ -286,7 +354,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
       });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const resetPassword = await userInstance.update({ password: passwordHash, token:'null' }, { where: { token } });
+    const resetPassword = await userInstance.update({ password: passwordHash, token: 'null' }, { where: { token } });
     return res.status(202).json({
       message: 'Password reset successfully',
       resetPassword,
@@ -340,5 +408,32 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
     return res.status(200).json({ message: 'User deleted', deletedUser });
   } catch (err) {
     return res.status(500).json({ message: 'failed to delete user' });
+  }
+}
+
+export async function getUserAccount(req: Request | any, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+
+    const record = await userInstance.findAll({
+      where: { id },
+      include: [
+        {
+          model: AccountInstance,
+          as: 'accounts',
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Account retrieved successfully',
+      data: record[0].accounts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
   }
 }

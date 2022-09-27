@@ -50,6 +50,6 @@ AccountInstance.init(
 
     {
         sequelize: db,
-        tableName: 'accountTable'
+        tableName: 'accounts'
     }
 );

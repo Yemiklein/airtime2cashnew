@@ -96,7 +96,7 @@ userInstance.init(
     avatar: {
       type: DataTypes.STRING,
       defaultValue:
-        'https://static.vecteezy.com/system/resources/thumbnails/005/129/844/small/profile-user-icon-isolated-on-white-background-eps10-free-vector.jpg',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7nG8OgXmMOXXiwbNOc-PPXUcilcIhCkS9BQ&usqp=CAU',
     },
     isVerified: {
       type: DataTypes.BOOLEAN,
@@ -115,4 +115,4 @@ userInstance.init(
 
 
 userInstance.hasMany(AccountInstance, {foreignKey: 'userId', as: 'accounts'});
-AccountInstance.belongsTo(userInstance, {foreignKey: 'userId', as: 'user'});
+AccountInstance.belongsTo(userInstance, {foreignKey: 'userId', as: 'Users'});
