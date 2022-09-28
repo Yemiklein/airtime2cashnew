@@ -193,7 +193,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     const { id } = req.params;
     console.log(req.params);
 
-    console.log('here is the user', id);
+    // console.log('here is the user', id);
     const record = await userInstance.findOne({ where: { id } });
     const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
