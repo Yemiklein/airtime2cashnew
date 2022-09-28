@@ -192,10 +192,6 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     });
     const { id } = req.params;
 
-<<<<<<< HEAD
-    // console.log('here is the user', id);
-=======
->>>>>>> origin
     const record = await userInstance.findOne({ where: { id } });
     const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
@@ -281,7 +277,7 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
             lastName: `${validUser.lastName}`,
             phoneNumber: `${validUser.phoneNumber}`,
             userName: `${validUser.userName}`,
-            email: `${validUser.email}`,
+            // email: `${validUser.email}`,
             avatar: `${validUser.avatar}`,
           },
         });
