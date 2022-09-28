@@ -2,6 +2,7 @@ import 'dotenv/config';
 import app from '../app';
 import supertest from 'supertest';
 import db from '../config/database.config';
+
 const request = supertest(app);
 beforeAll(async () => {
   await db
@@ -30,7 +31,7 @@ describe('user test', () => {
     expect(response.body).toHaveProperty('record');
   });
   it('successfully verifies a user', async () => {
-      const response = await request.post('/user/register').send({
+    const response = await request.post('/user/register').send({
       firstName: 'POD',
       lastName: 'F',
       userName: 'podf-test',
@@ -39,13 +40,13 @@ describe('user test', () => {
       password: 'abcd',
       confirmPassword: 'abcd',
     });
-    const token = response.body.record.token
-    const verified = await request.get(`/user/verify/${token}`)
+    const token = response.body.record.token;
+    const verified = await request.get(`/user/verify/${token}`);
     // expect(verified.body.message).toBe('Email verified successfully')
     // expect(verified.body.record.email).toBe(response.body.record.email)
     // expect(verified.body.record.isVerified).toBe(true)
-    expect(verified.status).toBe(302)
-  })
+    expect(verified.status).toBe(302);
+  });
   it('login user successfully', async () => {
     const response = await request.post('/user/login').send({
       emailOrUsername: 'podf@test.com',
@@ -58,7 +59,7 @@ describe('user test', () => {
   });
   it('update user profile', async () => {
     const user = await request.post('/user/login').send({
-      emailOrUsername : 'podf@test.com',
+      emailOrUsername: 'podf@test.com',
       password: 'abcd',
     });
     const response = await request
@@ -77,9 +78,65 @@ describe('user test', () => {
   });
   it('forgot password', async () => {
     const response = await request.post('/user/forgetPassword').send({
-      email: 'podf@test.com'
+      email: 'podf@test.com',
     });
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Reset password token sent to your email');
   });
+});
+
+describe('account test', () => {
+  it('create account successfully', async () => {
+    const user = await request.post('/user/login').send({
+      emailOrUsername: 'podf@test.com',
+      password: 'abcd',
+    });
+
+    const response = await request
+      .post('/account/createaccount')
+      .set('authorization', `Bearer ${user.body.token}`)
+      .send({
+        bankName: 'Access',
+        accountNumber: '0036123445',
+        accountName: 'podf',
+      });
+    expect(response.status).toBe(201);
+    expect(response.body.message).toBe('Account created successfully');
+    expect(response.body).toHaveProperty('data');
+  });
+  it(' Successfully retrieve bank accounts ', async () => {
+    const user = await request.post('/user/login').send({
+      emailOrUsername: 'podf@test.com',
+      password: 'abcd',
+    });
+
+    const response = await request.get(`/user/userAccount/${user.body.id}`).set('authorization', `Bearer ${user.body.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('Account retrieved successfully');
+    expect(response.body).toHaveProperty('data');
+  });
+    it('Successfully deletes bank account', async () => {
+      const user = await request.post('/user/login').send({
+      emailOrUsername: 'podf@test.com',
+      password: 'abcd',
+    });
+
+      const bank = await request
+      .post('/account/createaccount')
+      .set('authorization', `Bearer ${user.body.token}`)
+      .send({
+        bankName: 'Access',
+        accountNumber: '0036123444',
+        accountName: 'podf',
+      });
+
+      const id = bank.body.data.id
+
+      const response = await request.delete(`/account/deleteaccount/${id}`).set('authorization', `Bearer ${user.body.token}`);
+      expect(response.status).toBe(200);
+       expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Account deleted successfully');
+
+    });
 });
