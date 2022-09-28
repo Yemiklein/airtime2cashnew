@@ -415,6 +415,7 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
 export async function getUserAccount(req: Request | any, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
+
     const record = await userInstance.findAll({
       where: { id },
       include: [
