@@ -191,9 +191,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       apiSecret: process.env.CLOUDINARY_API_SECRET,
     });
     const { id } = req.params;
-    console.log(req.params);
 
-    console.log('here is the user', id);
     const record = await userInstance.findOne({ where: { id } });
     const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
@@ -233,7 +231,6 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       updatedRecord,
     });
   } catch (err) {
-    console.log(err);
     return res.status(500).json({ message: 'failed to update user details, check image format', err });
   }
 }
