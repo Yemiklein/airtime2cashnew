@@ -13,6 +13,8 @@ import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
 import cloudinary from 'cloudinary';
 import { AccountInstance } from '../model/accounts';
+import { WithdrawHistoryInstance } from '../model/withdrawalHistory';
+
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
@@ -193,7 +195,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     const { id } = req.params;
 
     const record = await userInstance.findOne({ where: { id } });
-    const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
+    const { firstName, role, walletBalance, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -222,8 +224,10 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     const updatedRecord = await record?.update({
       firstName,
       userName,
+      role,
       lastName,
       phoneNumber,
+      walletBalance,
       avatar: result?.url,
     });
     return res.status(202).json({
@@ -374,7 +378,20 @@ export async function userLogout(req: Request, res: Response, next: NextFunction
 export async function singleUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const user = await userInstance.findOne({ where: { id } });
+    const user = await userInstance.findOne({
+      where: { id },
+      attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: AccountInstance,
+          as: 'accounts',
+        },
+        {
+          model: WithdrawHistoryInstance,
+          as: 'withdrawBalance',
+        },
+      ],
+    });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
