@@ -9,6 +9,7 @@ import cors from 'cors';
 
 import usersRouter from './routes/users';
 import accountRouter from './routes/accounts';
+import withdrawRouter from './routes/withdraw';
 
 db.sync({})
   .then(() => {
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/api/mail', mailRouter);
 app.use('/user', usersRouter);
 app.use('/account', accountRouter);
+app.use('/cash', withdrawRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

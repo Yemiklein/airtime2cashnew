@@ -143,6 +143,7 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
+    //  withdraw from user wallet aallow payment gateway to come in here
     //  withdraw from user wallet and update user wallet balance
     const newBalance = currentWalletBalance - amount;
     const withdraw = await userInstance.update({ walletBalance: newBalance }, { where: { id: userId } });
