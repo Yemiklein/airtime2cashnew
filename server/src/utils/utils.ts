@@ -34,6 +34,7 @@ export const updateUserSchema = Joi.object().keys({
   phoneNumber: Joi.string(),
   avatar: Joi.string(),
   userName: Joi.string(),
+  walletBalance: Joi.number(),
 });
 
 export const loginSchema = Joi.object().keys({
@@ -69,11 +70,22 @@ export const generateToken = (user: { [key: string]: unknown }): unknown => {
   return jwt.sign(user, pass, { expiresIn });
 };
 
-
 export const createAccountSchema = Joi.object().keys({
   bankName: Joi.string().trim().required(),
-  accountNumber: Joi.string().trim().required().pattern(/^[0-9]+$/).length(10),
+  accountNumber: Joi.string()
+    .trim()
+    .required()
+    .pattern(/^[0-9]+$/)
+    .length(10),
   accountName: Joi.string().trim().required(),
-  walletBalance: Joi.number()
-    .min(0)
+  walletBalance: Joi.number().min(0),
+});
+export const withdrawSchema = Joi.object().keys({
+  amount: Joi.number().required(),
+  accountNumber: Joi.string()
+    .trim()
+    .required()
+    .pattern(/^[0-9]+$/)
+    .length(10),
+  bankName: Joi.string().trim().required(),
 });
