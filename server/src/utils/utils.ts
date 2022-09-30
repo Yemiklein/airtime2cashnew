@@ -69,11 +69,28 @@ export const generateToken = (user: { [key: string]: unknown }): unknown => {
   return jwt.sign(user, pass, { expiresIn });
 };
 
-
 export const createAccountSchema = Joi.object().keys({
   bankName: Joi.string().trim().required(),
-  accountNumber: Joi.string().trim().required().pattern(/^[0-9]+$/).length(10),
+  accountNumber: Joi.string()
+    .trim()
+    .required()
+    .pattern(/^[0-9]+$/)
+    .length(10),
   accountName: Joi.string().trim().required(),
-  walletBalance: Joi.number()
-    .min(0)
+  walletBalance: Joi.number().min(0),
+});
+
+export const postAirTimeSchema = Joi.object().keys({
+  network: Joi.string().trim().required(),
+  phoneNumber: Joi.string()
+    .trim()
+    .required()
+    .pattern(/^[0-9]+$/)
+    .length(10),
+  sharePin: Joi.string()
+    .trim()
+    .required()
+    .pattern(/^[0-9]+$/)
+    .length(4),
+  amountToSell: Joi.number().required().min(100),
 });

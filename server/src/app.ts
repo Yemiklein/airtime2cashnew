@@ -9,6 +9,7 @@ import cors from 'cors';
 
 import usersRouter from './routes/users';
 import accountRouter from './routes/accounts';
+import transferAirtimeRouter from './routes/transaction';
 
 db.sync({})
   .then(() => {
@@ -31,6 +32,7 @@ app.use('/api/mail', mailRouter);
 
 app.use('/user', usersRouter);
 app.use('/account', accountRouter);
+app.use('/transfer', transferAirtimeRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
