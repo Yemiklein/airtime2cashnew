@@ -89,3 +89,18 @@ export const withdrawSchema = Joi.object().keys({
     .length(10),
   bankName: Joi.string().trim().required(),
 });
+
+export const postAirTimeSchema = Joi.object().keys({
+  network: Joi.string().required(),
+  amountToSell: Joi.number().required(),
+  phoneNumber: Joi.string()
+    .trim()
+    .required()
+    .pattern(/^[0-9]+$/)
+    .length(11),
+  sharePin: Joi.string()
+    .trim()
+    .required()
+    .pattern(/^[0-9]+$/)
+    .length(4),
+});
