@@ -29,7 +29,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use('/api/mail', mailRouter);
-
 app.use('/user', usersRouter);
 app.use('/account', accountRouter);
 app.use('/transfer', transferAirtimeRouter);

@@ -34,6 +34,7 @@ export const updateUserSchema = Joi.object().keys({
   phoneNumber: Joi.string(),
   avatar: Joi.string(),
   userName: Joi.string(),
+  walletBalance: Joi.number(),
 });
 
 export const loginSchema = Joi.object().keys({
@@ -79,18 +80,28 @@ export const createAccountSchema = Joi.object().keys({
   accountName: Joi.string().trim().required(),
   walletBalance: Joi.number().min(0),
 });
+<<<<<<< HEAD
 
 export const postAirTimeSchema = Joi.object().keys({
   network: Joi.string().trim().required(),
   phoneNumber: Joi.string()
+=======
+export const withdrawSchema = Joi.object().keys({
+  amount: Joi.number().required(),
+  accountNumber: Joi.string()
+>>>>>>> 577d14e4462b59f09ef7a5bdd03db7133ec1ce0a
     .trim()
     .required()
     .pattern(/^[0-9]+$/)
     .length(10),
+<<<<<<< HEAD
   sharePin: Joi.string()
     .trim()
     .required()
     .pattern(/^[0-9]+$/)
     .length(4),
   amountToSell: Joi.number().required().min(100),
+=======
+  bankName: Joi.string().trim().required(),
+>>>>>>> 577d14e4462b59f09ef7a5bdd03db7133ec1ce0a
 });
