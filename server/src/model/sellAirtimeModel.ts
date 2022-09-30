@@ -3,10 +3,11 @@ import db from '../config/database.config';
 
 interface SellAirtimeAttribute {
   id: string;
+  userID: string;
   network: string;
   phoneNumber: string;
   amountToSell: number;
-  transactionStatus: boolean;
+  transactionStatus?: boolean;
 }
 
 export class SellAirtimeInstance extends Model<SellAirtimeAttribute> {}
@@ -16,6 +17,11 @@ SellAirtimeInstance.init(
     id: {
       type: DataTypes.UUIDV4,
       primaryKey: true,
+      allowNull: false,
+    },
+    userID: {
+      type: DataTypes.UUIDV4,
+      primaryKey: false,
       allowNull: false,
     },
 
@@ -36,7 +42,8 @@ SellAirtimeInstance.init(
 
     transactionStatus: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
+      allowNull: true,
+      defaultValue: false,
     },
   },
 

@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4, validate } from 'uuid';
 import { AccountInstance } from '../model/accounts';
+import { SellAirtimeInstance } from '../model/sellAirtimeModel';
 import { userInstance } from '../model/userModel';
 import { createAccountSchema, options, postAirTimeSchema } from '../utils/utils';
 
@@ -52,9 +53,21 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
         break;
     }
 
-    res
-      .status(201)
-      .json({ network, phoneNumber, amountToSell, sharePin, destinationPhoneNumber, USSD, amountToReceive });
+    // res
+    //   .status(201)
+    //   .json({ network, phoneNumber, amountToSell, sharePin, destinationPhoneNumber, USSD, amountToReceive });
+    const transactions = await SellAirtimeInstance.create({
+      id: id,
+      phoneNumber,
+      network,
+      amountToSell,
+      userID,
+    });
+
+    if (!transactions) {
+      res.status(404).json({ message: 'Sorry, transaction was not successful' });
+    }
+    return res.status(201).json(transactions);
   } catch (error: any) {
     console.log(error);
   }
