@@ -82,7 +82,7 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     if (!Number.isNaN(pageAsNumber) && pageAsNumber > 0) {
       page = pageAsNumber;
     }
-    let size = 10;
+    let size = 15;
     if (!Number.isNaN(sizeAsNumber) && sizeAsNumber > 0 && sizeAsNumber < 15) {
       size = sizeAsNumber;
     }
