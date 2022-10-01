@@ -153,7 +153,7 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
       accountNumber: accountNumber,
       bankName: bankName,
       status: true,
-    });
+    })
     return res.status(200).json({ message: 'Withdraw successful', withdraw, transaction });
   } catch (error) {
     return res.status(500).json({
