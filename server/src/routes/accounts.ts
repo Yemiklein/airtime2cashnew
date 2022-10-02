@@ -10,7 +10,6 @@ import {
 } from '../controller/accounts';
 
 router.post('/createaccount', auth, CreateAccount);
-router.get('/allAccount', getAllAccounts);
 router.get('/getaccounts/:id', auth, getBankAccounts);
 router.delete('/deleteaccount/:id', auth, deleteBankAccount);
 router.get('/getuseraccount/:id', auth, getUserAccount);
