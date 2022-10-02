@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import db from '../config/database.config';
-import {AccountInstance} from './accounts';
+import { AccountInstance } from './accounts';
+import { WithdrawHistoryInstance } from './withdrawalHistory';
 interface userAttributes {
   id: string;
   firstName: string;
@@ -12,6 +13,8 @@ interface userAttributes {
   avatar: string;
   isVerified?: Boolean;
   token?: string;
+  role?: string;
+  walletBalance?: number;
 }
 
 export class userInstance extends Model<userAttributes> {
@@ -106,6 +109,14 @@ userInstance.init(
       type: DataTypes.STRING,
       defaultValue: null,
     },
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: 'user',
+    },
+    walletBalance: {
+      type: DataTypes.NUMBER,
+      defaultValue: 0,
+    },
   },
   {
     sequelize: db,
@@ -113,6 +124,7 @@ userInstance.init(
   },
 );
 
-
-userInstance.hasMany(AccountInstance, {foreignKey: 'userId', as: 'accounts'});
-AccountInstance.belongsTo(userInstance, {foreignKey: 'userId', as: 'Users'});
+userInstance.hasMany(AccountInstance, { foreignKey: 'userId', as: 'accounts' });
+userInstance.hasMany(WithdrawHistoryInstance, { foreignKey: 'userId', as: 'withdrawBalance' });
+AccountInstance.belongsTo(userInstance, { foreignKey: 'userId', as: 'Users' });
+WithdrawHistoryInstance.belongsTo(userInstance, { foreignKey: 'userId', as: 'Users' });
