@@ -13,7 +13,7 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
     const userId = req.user.id;
 
     const { amount, accountNumber, bankName } = req.body;
-    const validatedInput = await withdrawSchema.validateAsync(req.body, options);
+    const validatedInput = await withdrawSchema.validate(req.body, options);
     if (validatedInput.error) {
       return res.status(400).json(validatedInput.error.details[0].message);
     }
@@ -25,10 +25,11 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
     }
 
     // get destination account here where we are sending money to
-    const account = await AccountInstance.findOne({ where: { accountNumber } });
+    const account = await AccountInstance.findOne({ where: { userId: userId } });
     if (!account) {
       return res.status(404).json({ message: 'Account not found' });
     }
+
     // check if user has enough money to withdraw from wallet
     const currentWalletBalance = user.walletBalance;
     if (currentWalletBalance < amount) {
@@ -36,6 +37,7 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
     }
 
     //  withdraw from user wallet aallow payment gateway to come in here
+
     //  withdraw from user wallet and update user wallet balance
     const newBalance = currentWalletBalance - amount;
     const withdraw = await userInstance.update({ walletBalance: newBalance }, { where: { id: userId } });
