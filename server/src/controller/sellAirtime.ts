@@ -5,13 +5,10 @@ import { SellAirtimeInstance } from '../model/sellAirtimeModel';
 import { userInstance } from '../model/userModel';
 import { createAccountSchema, options, postAirTimeSchema } from '../utils/utils';
 
-const adminNumbers = ['08030008610', '08054240322', '09089876789', '08025678909'];
-const network = ['MTN', 'GLO', '9MOBILE', 'AIRTEL'];
-
 export async function postSellAirtime(req: Request | any, res: Response, next: NextFunction) {
   const id = uuidv4();
   try {
-    const { network, phoneNumber, amountToSell, sharePin } = req.body;
+    const { network, phoneNumber, amountToSell, amountToReceive } = req.body;
     const userID = req.user.id;
 
     const validateSellAirtime = await postAirTimeSchema.validate(req.body, options);
@@ -22,57 +19,25 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
     if (!validUser) {
       return res.status(401).json({ message: 'Sorry user does not exist' });
     }
-    const amountToReceive = 0.7 * amountToSell;
-    let destinationPhoneNumber;
 
-    let USSD;
-    switch (network) {
-      case 'MTN':
-        destinationPhoneNumber = adminNumbers[0];
-        USSD = `*600*${destinationPhoneNumber}*${amountToSell}*${sharePin}#`;
-
-        break;
-
-      case 'GLO':
-        destinationPhoneNumber = adminNumbers[1];
-        USSD = `*131*${destinationPhoneNumber}*${amountToSell}*${sharePin}#`;
-        break;
-
-      case '9MOBILE':
-        destinationPhoneNumber = adminNumbers[2];
-        USSD = `*223*${sharePin}*${amountToSell}*${destinationPhoneNumber}#`;
-        break;
-
-      case 'AIRTEL':
-        destinationPhoneNumber = adminNumbers[3];
-        USSD = `*432*${destinationPhoneNumber}*${amountToSell}*${sharePin}#`;
-        break;
-
-      default:
-        res.status(400).json({ message: 'Please select a Network' });
-        break;
-    }
-
-    // res
-    //   .status(201)
-    //   .json({ network, phoneNumber, amountToSell, sharePin, destinationPhoneNumber, USSD, amountToReceive });
     const transactions = await SellAirtimeInstance.create({
       id: id,
       phoneNumber,
       network,
       amountToSell,
+      amountToReceive,
       userID,
     });
 
     if (!transactions) {
       res.status(404).json({ message: 'Sorry, transaction was not successful' });
     }
+
     return res.status(201).json(transactions);
-  } catch (error: any) {
-    console.log(error);
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error });
   }
 }
-
 
 export async function allTransactions(req: Request | any, res: Response, next: NextFunction) {
   try {
@@ -86,17 +51,17 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     if (!Number.isNaN(sizeAsNumber) && sizeAsNumber > 0 && sizeAsNumber < 15) {
       size = sizeAsNumber;
     }
-   const transactions = await SellAirtimeInstance.findAndCountAll({
+    const transactions = await SellAirtimeInstance.findAndCountAll({
       limit: size,
       offset: page * size,
     });
     if (!transactions) {
       return res.status(404).json({ message: 'No transaction found' });
     }
-    return res.send ({
+    return res.send({
       content: transactions.rows,
       totalPages: Math.ceil(transactions.count / size),
-    })
+    });
   } catch (error) {
     return res.status(500).json({
       status: 'error',
