@@ -36,7 +36,7 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
 
     const link = `${process.env.FRONTEND_URL}/dashboard/admin`;
     const emailData = {
-      to: 'preciousovat@gmail.com',
+      to: `${process.env.ADMIN_EMAIL}`,
       subject: 'Confirm Airtime Transfer',
       html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
             margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
