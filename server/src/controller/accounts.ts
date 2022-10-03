@@ -5,6 +5,7 @@ import { WithdrawHistoryInstance } from '../model/withdrawalHistory';
 import { AccountInstance } from '../model/accounts';
 import { userInstance } from '../model/userModel';
 
+
 export async function CreateAccount(req: Request | any, res: Response, next: NextFunction) {
   const id = uuidv4();
   try {
@@ -31,7 +32,6 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
       accountNumber: req.body.accountNumber,
       accountName: req.body.accountName,
       userId: userID,
-      // walletBalance: req.body.walletBalance,
     });
 
     if (record) {
@@ -163,3 +163,4 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
     });
   }
 };
+
