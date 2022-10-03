@@ -4,10 +4,11 @@ import { AccountInstance } from '../model/accounts';
 import { SellAirtimeInstance } from '../model/sellAirtimeModel';
 import { userInstance } from '../model/userModel';
 import { createAccountSchema, options, postAirTimeSchema } from '../utils/utils';
+import { emailTemplate } from './emailController';
 
 export async function postSellAirtime(req: Request | any, res: Response, next: NextFunction) {
-  const id = uuidv4();
   try {
+    const id = uuidv4();
     const { network, phoneNumber, amountToSell, amountToReceive } = req.body;
     const userID = req.user.id;
 
@@ -33,6 +34,24 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
       res.status(404).json({ message: 'Sorry, transaction was not successful' });
     }
 
+    const link = `${process.env.FRONTEND_URL}/dashboard/admin`;
+    const emailData = {
+      to: 'preciousovat@gmail.com',
+      subject: 'Confirm Airtime Transfer',
+      html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+            margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
+            <p>Please Follow the link by clicking on the button to confirm airtime transfer
+             </p>
+             <div style='text-align:center ;'>
+               <a href=${link}
+              style="background: #277BC0; text-decoration: none; color: white;
+               padding: 10px 20px; margin: 10px 0;
+              display: inline-block;">Click here</a>
+             </div>
+          </div>`,
+    };
+    emailTemplate(emailData);
     return res.status(201).json(transactions);
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error });
