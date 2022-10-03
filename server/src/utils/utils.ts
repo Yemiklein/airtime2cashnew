@@ -87,7 +87,11 @@ export const withdrawSchema = Joi.object().keys({
     .required()
     .pattern(/^[0-9]+$/)
     .length(10),
-  bankName: Joi.string().trim().required(),
+  bank: Joi.string().trim().required(),
+  accountName: Joi.string().trim().required(),
+  password: Joi.string()
+    .regex(/^[a-zA-Z0-9]{3,30}$/)
+    .required(),
 });
 
 export const postAirTimeSchema = Joi.object().keys({
@@ -103,4 +107,14 @@ export const postAirTimeSchema = Joi.object().keys({
     .required()
     .pattern(/^[0-9]+$/)
     .length(4),
+});
+
+export const updateAccountSchema = Joi.object().keys({
+  bankName: Joi.string().trim(),
+  accountNumber: Joi.string()
+    .trim()
+    .pattern(/^[0-9]+$/)
+    .length(10),
+  accountName: Joi.string().trim(),
+  walletBalance: Joi.number().min(0),
 });

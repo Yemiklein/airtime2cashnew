@@ -7,8 +7,7 @@ interface WithdrawHistoryAttribute {
   userId: string;
   status: boolean;
   accountNumber: string;
-  bankName: string;
-  // dateCreated: Date;
+  bank: string;
 }
 
 export class WithdrawHistoryInstance extends Model<WithdrawHistoryAttribute> {}
@@ -36,14 +35,10 @@ WithdrawHistoryInstance.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    bankName: {
+    bank: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    // dateCreated: {
-    //   type: DataTypes.DATE,
-    //   defaultValue: new Date(),
-    // },
   },
   {
     sequelize: db,
