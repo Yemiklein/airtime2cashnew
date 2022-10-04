@@ -9,14 +9,14 @@ import { emailTemplate } from './emailController';
 export async function postSellAirtime(req: Request | any, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
-    const { network, phoneNumber, amountToSell, amountToReceive } = req.body;
-    const userID = req.user.id;
+    const { email, network, phoneNumber, amountToSell, amountToReceive } = req.body;
+    const userId = req.user.id;
 
     const validateSellAirtime = await postAirTimeSchema.validate(req.body, options);
     if (validateSellAirtime.error) {
       return res.status(400).json(validateSellAirtime.error.details[0].message);
     }
-    const validUser = await userInstance.findOne({ where: { id: userID } });
+    const validUser = await userInstance.findOne({ where: { id: userId } });
     if (!validUser) {
       return res.status(401).json({ message: 'Sorry user does not exist' });
     }
@@ -24,10 +24,11 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
     const transactions = await SellAirtimeInstance.create({
       id: id,
       phoneNumber,
+      email,
       network,
       amountToSell,
       amountToReceive,
-      userID,
+      userId,
     });
 
     if (!transactions) {
