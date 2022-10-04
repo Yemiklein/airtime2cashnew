@@ -55,3 +55,27 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
     });
   }
 };
+
+
+// get all transactions
+export const getTransactions = async (req: Request | any, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user.id;
+    const transactions = await WithdrawHistoryInstance.findAll({ where: { userId } });
+    if (!transactions) {
+      return res.status(404).json({ message: 'No transactions found' });
+    }
+    return res.status(200).json({ transactions });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
+  }
+}
+
+
+ 
+
+
+
