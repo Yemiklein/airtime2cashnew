@@ -112,13 +112,3 @@ export const creditSchema = Joi.object().keys({
   amount: Joi.number().required(),
 });
 
-export const creditSchema = Joi.object().keys({
-  accountNumber: Joi.string()
-    .trim()
-    .required()
-    .pattern(/^[0-9]+$/)
-    .length(10),
-  accountName: Joi.string().trim().required(),
-  amount: Joi.number().required(),
-  walletBalance: Joi.number().min(0)
-});

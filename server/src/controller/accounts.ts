@@ -1,14 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
-<<<<<<< HEAD
-import { v4 as uuidv4} from 'uuid';
-import { createAccountSchema, options } from '../utils/utils';
-import { AccountInstance} from '../model/accounts';
-
-=======
 import { v4 as uuidv4, validate } from 'uuid';
 import { createAccountSchema, options } from '../utils/utils';
 import { AccountInstance } from '../model/accounts';
->>>>>>> origin/develop
 
 export async function CreateAccount(req: Request | any, res: Response, next: NextFunction) {
   const id = uuidv4();
