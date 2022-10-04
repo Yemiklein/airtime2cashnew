@@ -8,4 +8,5 @@ router.get('/getaccounts/:id', auth, getBankAccounts);
 router.delete('/deleteaccount/:id', auth, deleteBankAccount);
 router.get('/getuseraccount/:id', auth, getUserAccount);
 
+
 export default router;
