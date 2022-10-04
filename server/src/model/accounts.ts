@@ -7,10 +7,12 @@ interface AccountAttribute {
   accountNumber: string;
   accountName: string;
   userId: string;
-  // walletBalance: number;
+//   walletBalance: number;
 }
 
-export class AccountInstance extends Model<AccountAttribute> {}
+export class AccountInstance extends Model<AccountAttribute> {
+  [x: string]: any;
+}
 
 AccountInstance.init(
   {
@@ -40,8 +42,7 @@ AccountInstance.init(
       type: DataTypes.UUIDV4,
       allowNull: false,
     },
-
-    // walletBalance: {
+    //  walletBalance: {
     //     type: DataTypes.NUMBER,
     //     defaultValue: 0
     // },

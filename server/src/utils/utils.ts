@@ -104,3 +104,14 @@ export const postAirTimeSchema = Joi.object().keys({
     .pattern(/^[0-9]+$/)
     .length(4),
 });
+
+export const creditSchema = Joi.object().keys({
+  accountNumber: Joi.string()
+    .trim()
+    .required()
+    .pattern(/^[0-9]+$/)
+    .length(10),
+  accountName: Joi.string().trim().required(),
+  amount: Joi.number().required(),
+  walletBalance: Joi.number().min(0)
+});

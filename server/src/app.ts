@@ -12,6 +12,7 @@ import accountRouter from './routes/accounts';
 import withdrawRouter from './routes/withdraw';
 import transferAirtimeRouter from './routes/transaction';
 
+
 db.sync({})
   .then(() => {
     console.log('Database connected successfully 🚀');
@@ -34,6 +35,7 @@ app.use('/user', usersRouter);
 app.use('/account', accountRouter);
 app.use('/cash', withdrawRouter);
 app.use('/transfer', transferAirtimeRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
