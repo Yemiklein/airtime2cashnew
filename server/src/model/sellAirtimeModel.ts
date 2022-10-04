@@ -23,7 +23,7 @@ SellAirtimeInstance.init(
 
     userID: {
       type: DataTypes.UUIDV4,
-      primaryKey: false,
+      // primaryKey: false,
       allowNull: false,
     },
 
