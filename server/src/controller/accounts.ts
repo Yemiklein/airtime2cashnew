@@ -123,33 +123,3 @@ export async function getAllAccounts(req: Request, res: Response) {
     return res.status(500).json({ message: 'Sorry failed to fetch accounts', route: '/allaccounts' });
   }
 }
-
-export async function updateAccount(req: Request | any, res: Response) {
-  try {
-    const id = req.user.id;
-    const { accountNumber, accountName, bankName } = req.body;
-    const validatedInput = await updateAccountSchema.validate(req.body, options);
-    if (validatedInput.error) {
-      return res.status(400).json({
-        status: 'error',
-        message: validatedInput.error.details[0].message,
-      });
-    }
-    const account = await AccountInstance.findOne({
-      where: { id: id },
-    });
-    if (account) {
-      const updateAccount = await account.update(req.body);
-      return res.status(200).json({
-        status: 'success',
-        message: 'Account updated successfully',
-        data: updateAccount,
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({
-      status: 'error',
-      message: 'internal server error',
-    });
-  }
-}
