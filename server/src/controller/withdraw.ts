@@ -7,7 +7,11 @@ import { AccountInstance } from '../model/accounts';
 import { userInstance } from '../model/userModel';
 
 const Flutterwave = require('flutterwave-node-v3');
-const flw = new Flutterwave(String(process.env.FLUTTERWAVE_PUBLIC_KEY), String(process.env.FLUTTERWAVE_SECRET_KEY));
+// const flw = new Flutterwave(String(process.env.FLUTTERWAVE_PUBLIC_KEY), String(process.env.FLUTTERWAVE_SECRET_KEY));
+const flw = new Flutterwave(
+  'FLWPUBK_TEST-ab9110a6e892c4d8003972c67262c709-X',
+  'FLWSECK_TEST-7b7484a72d3c70d324c71e63d399b879-X',
+);
 
 export const withdraw = async (req: Request | any, res: Response, next: NextFunction) => {
   const id = uuidv4();
@@ -52,12 +56,13 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
 
     //  withdraw from user wallet aallow payment gateway to come in here
     const details = {
-      account_bank: '058',
+      account_bank: bank,
       account_number: accountNumber,
       amount: amount,
       currency: 'NGN',
       narration: 'Withdrawal from airtime2cash wallet',
       reference: 'airtime2cash',
+      callback_url: 'https://webhook.site/b3e505b0-fe02-430e-a538-22bbbce8ce0d',
     };
     flw.Transfer.initiate(details).then(console.log).catch(console.log);
 
