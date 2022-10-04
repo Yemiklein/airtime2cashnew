@@ -88,5 +88,3 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     });
   }
 }
-
-
