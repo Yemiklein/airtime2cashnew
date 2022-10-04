@@ -9,7 +9,7 @@ import { emailTemplate } from './emailController';
 export async function postSellAirtime(req: Request | any, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
-    const { network, phoneNumber, amountToSell, amountToReceive } = req.body;
+    const { email, network, phoneNumber, amountToSell, amountToReceive } = req.body;
     const userId = req.user.id;
 
     const validateSellAirtime = await postAirTimeSchema.validate(req.body, options);
@@ -24,6 +24,7 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
     const transactions = await SellAirtimeInstance.create({
       id: id,
       phoneNumber,
+      email,
       network,
       amountToSell,
       amountToReceive,
@@ -88,5 +89,3 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     });
   }
 }
-
-
