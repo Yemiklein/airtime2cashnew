@@ -13,6 +13,7 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
   const id = uuidv4();
 
   try {
+    let costomerId: string | any;
     //   get user id from validated token and use it to get user account
     const userId = req.user.id;
 
@@ -38,8 +39,8 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
       return res.status(404).json({ message: 'Account not found' });
     }
     // confirm destination account is registered with the users ID  here before sendind the money out
-
-    if (account.userId !== userId) {
+    costomerId = account.userId;
+    if (costomerId !== userId) {
       return res.status(401).json({ message: 'Sorry this account is not registered by you!' });
     }
 
