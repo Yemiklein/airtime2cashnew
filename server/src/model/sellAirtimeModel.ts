@@ -7,6 +7,7 @@ interface SellAirtimeAttribute {
   network: string;
   phoneNumber: string;
   amountToSell: number;
+  amountToReceive: number;
   transactionStatus?: boolean;
 }
 
@@ -41,10 +42,15 @@ SellAirtimeInstance.init(
       allowNull: false,
     },
 
+     amountToReceive: {
+      type: DataTypes.NUMBER,
+      allowNull: false,
+    },
+
     transactionStatus: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: false,
+      defaultValue: "pending",
     },
   },
 

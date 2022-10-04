@@ -13,8 +13,7 @@ import bcrypt from 'bcryptjs';
 import { emailTemplate } from './emailController';
 import cloudinary from 'cloudinary';
 import { AccountInstance } from '../model/accounts';
-import { WithdrawHistoryInstance } from '../model/withdrawalHistory';
-
+import { SellAirtimeInstance } from '../model/sellAirtimeModel';
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
@@ -197,7 +196,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     const { id } = req.params;
 
     const record = await userInstance.findOne({ where: { id } });
-    const { firstName, role, walletBalance, avatar, userName, lastName, phoneNumber } = req.body;
+    const { firstName, avatar, userName, lastName, phoneNumber } = req.body;
     const validationResult = updateUserSchema.validate(req.body, options);
     if (validationResult.error) {
       return res.status(400).json({
@@ -225,10 +224,9 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     }
     const updatedRecord = await record?.update({
       firstName,
-      userName, 
+      userName,
       lastName,
       phoneNumber,
-      walletBalance,
       avatar: result?.url,
       role: req.body.role || 'user',
     });
@@ -283,7 +281,7 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
             lastName: `${validUser.lastName}`,
             phoneNumber: `${validUser.phoneNumber}`,
             userName: `${validUser.userName}`,
-            // email: `${validUser.email}`,
+            email: `${validUser.email}`,
             avatar: `${validUser.avatar}`,
           },
         });
@@ -380,24 +378,11 @@ export async function userLogout(req: Request, res: Response, next: NextFunction
 export async function singleUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const user = await userInstance.findOne({
-      where: { id },
-      attributes: { exclude: ['password'] },
-      include: [
-        {
-          model: AccountInstance,
-          as: 'accounts',
-        },
-        {
-          model: WithdrawHistoryInstance,
-          as: 'withdrawBalance',
-        },
-      ],
-    });
+    const user = await userInstance.findOne({ where: { id } });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    return res.status(200).json({ message: 'User found', TransactionHistory: user.withdrawBalance });
+    return res.status(200).json({ message: 'User found', user });
   } catch (err) {
     return res.status(500).json({ message: 'failed to get user' });
   }
@@ -447,6 +432,36 @@ export async function getUserAccount(req: Request | any, res: Response, next: Ne
     });
   } catch (error) {
     return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
+  }
+}
+
+export async function userTransactions(req: Request | any, res: Response, next: NextFunction) {
+
+  try {
+    const { id } = req.params;
+
+    const record = await userInstance.findAll({
+      where: { id },
+      include: [
+        {
+        model: SellAirtimeInstance,
+        as: 'SellAirtime'
+        },
+      ],
+    });
+
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Transactions retrieved successfully',
+      data: record[0].SellAirtime
+    })
+  } catch(error){
+
+      return res.status(500).json({
       status: 'error',
       message: error,
     });

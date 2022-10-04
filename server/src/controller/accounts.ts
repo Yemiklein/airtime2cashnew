@@ -1,9 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4, validate } from 'uuid';
-import { createAccountSchema, withdrawSchema, options } from '../utils/utils';
-import { WithdrawHistoryInstance } from '../model/withdrawalHistory';
+import { createAccountSchema, options } from '../utils/utils';
 import { AccountInstance } from '../model/accounts';
-import { userInstance } from '../model/userModel';
+
 
 export async function CreateAccount(req: Request | any, res: Response, next: NextFunction) {
   const id = uuidv4();
@@ -31,7 +30,6 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
       accountNumber: req.body.accountNumber,
       accountName: req.body.accountName,
       userId: userID,
-      // walletBalance: req.body.walletBalance,
     });
 
     if (record) {
