@@ -54,6 +54,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
       avatar: req.body.avatar,
       isVerified: req.body.isVerified,
       token,
+      role: req.body.role || 'user',
     });
     const link = `${process.env.BACKEND_URL}/user/verify/${token}`;
     const emailData = {
@@ -126,7 +127,8 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
 export async function resendVerificationLink(req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body;
-    const user = await userInstance.findOne({ where: { email } });
+    const user = await userInstance.findOne({ where: { email, isVerified: false } });
+
     if (!user) {
       return res.status(404).json({
         message: 'User not found',
@@ -226,6 +228,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
       lastName,
       phoneNumber,
       avatar: result?.url,
+      role: req.body.role || 'user',
     });
     return res.status(202).json({
       message: 'successfully updated user details',
@@ -422,7 +425,6 @@ export async function getUserAccount(req: Request | any, res: Response, next: Ne
         },
       ],
     });
-
     return res.status(200).json({
       status: 'success',
       message: 'Account retrieved successfully',

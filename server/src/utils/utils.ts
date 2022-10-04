@@ -16,6 +16,7 @@ export const signUpSchema = Joi.object()
     email: Joi.string().trim().lowercase().required(),
     phoneNumber: Joi.string().required(),
     avatar: Joi.string(),
+    role: Joi.string(),
     isVerified: Joi.boolean(),
     password: Joi.string()
       .regex(/^[a-zA-Z0-9]{3,30}$/)
@@ -36,7 +37,7 @@ export const updateUserSchema = Joi.object().keys({
   userName: Joi.string(),
   walletBalance: Joi.number(),
   role:Joi.string()
-}); 
+});
 
 export const loginSchema = Joi.object().keys({
   emailOrUsername: Joi.string().trim().lowercase().required(),
