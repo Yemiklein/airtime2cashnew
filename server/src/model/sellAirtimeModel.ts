@@ -3,7 +3,7 @@ import db from '../config/database.config';
 
 interface SellAirtimeAttribute {
   id: string;
-  userID: string;
+  userId: string;
   network: string;
   phoneNumber: string;
   amountToSell: number;
@@ -21,7 +21,7 @@ SellAirtimeInstance.init(
       allowNull: false,
     },
 
-    userID: {
+    userId: {
       type: DataTypes.UUIDV4,
       // primaryKey: false,
       allowNull: false,
