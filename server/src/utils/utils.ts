@@ -111,3 +111,4 @@ export const creditSchema = Joi.object().keys({
   email: Joi.string().trim().lowercase().required(),
   amount: Joi.number().required(),
 });
+
