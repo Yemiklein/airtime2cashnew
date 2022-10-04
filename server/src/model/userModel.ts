@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import db from '../config/database.config';
 import { AccountInstance } from './accounts';
+import { SellAirtimeInstance } from './sellAirtimeModel';
 import { WithdrawHistoryInstance } from './withdrawalHistory';
 interface userAttributes {
   id: string;
@@ -126,5 +127,7 @@ userInstance.init(
 
 userInstance.hasMany(AccountInstance, { foreignKey: 'userId', as: 'accounts' });
 userInstance.hasMany(WithdrawHistoryInstance, { foreignKey: 'userId', as: 'withdrawBalance' });
+userInstance.hasMany(SellAirtimeInstance, {foreignKey: 'userId', as: 'SellAirtime'})
 AccountInstance.belongsTo(userInstance, { foreignKey: 'userId', as: 'Users' });
 WithdrawHistoryInstance.belongsTo(userInstance, { foreignKey: 'userId', as: 'Users' });
+SellAirtimeInstance.belongsTo(userInstance, {foreignKey: 'userId', as: 'Users'})

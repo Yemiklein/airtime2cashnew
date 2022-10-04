@@ -1,8 +1,14 @@
 import express, { Request, Response, NextFunction } from 'express';
+<<<<<<< HEAD
 import { v4 as uuidv4} from 'uuid';
 import { createAccountSchema, options } from '../utils/utils';
 import { AccountInstance} from '../model/accounts';
 
+=======
+import { v4 as uuidv4, validate } from 'uuid';
+import { createAccountSchema, options } from '../utils/utils';
+import { AccountInstance } from '../model/accounts';
+>>>>>>> origin/develop
 
 export async function CreateAccount(req: Request | any, res: Response, next: NextFunction) {
   const id = uuidv4();
@@ -30,7 +36,6 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
       accountNumber: req.body.accountNumber,
       accountName: req.body.accountName,
       userId: userID,
-      // walletBalance: req.body.walletBalance,
     });
 
     if (record) {
@@ -51,9 +56,9 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
 export async function getBankAccounts(req: Request | any, res: Response, next: NextFunction) {
   try {
     console.log('here');
-    const userID = req.user.id;
+    const userId = req.user.id;
     const account = await AccountInstance.findAll({
-      where: { userId: userID },
+      where: { userId: userId },
     });
     if (account) {
       return res.status(200).json({
@@ -111,4 +116,3 @@ export async function getUserAccount(req: Request | any, res: Response, next: Ne
     });
   }
 }
-
