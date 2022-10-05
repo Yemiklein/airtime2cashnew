@@ -114,10 +114,10 @@ userInstance.init(
       type: DataTypes.STRING,
       defaultValue: 'user',
     },
-    // walletBalance: {
-    //   type: DataTypes.NUMBER,
-    //   defaultValue: 0,
-    // },
+    walletBalance: {
+      type: DataTypes.NUMBER,
+      defaultValue: 0,
+    },
   },
   {
     sequelize: db,

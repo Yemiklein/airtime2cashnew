@@ -9,7 +9,7 @@ interface SellAirtimeAttribute {
   phoneNumber: string;
   amountToSell: number;
   amountToReceive: number;
-  transactionStatus?: boolean;
+  transactionStatus?: string;
 }
 
 export class SellAirtimeInstance extends Model<SellAirtimeAttribute> {}

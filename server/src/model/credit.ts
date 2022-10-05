@@ -5,7 +5,9 @@ interface CreditAttribute {
     id: string;
     email: string;
     userId: string;
+    amountToSell: number;
     amount: number;
+    transactionStatus:string
   }
   
   export class CreditInstance extends Model<CreditAttribute> {}
@@ -25,12 +27,19 @@ CreditInstance.init(
         type: DataTypes.UUIDV4,
         allowNull: false,
       },
-    amount: {
+    amountToSell: {
         type: DataTypes.NUMBER,
         allowNull: false,
       },
+      amount: {
+        type: DataTypes.NUMBER,
+        allowNull: false,
+      },
+      transactionStatus: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-
+  },
   {
     sequelize: db,
     tableName: 'Credit',
