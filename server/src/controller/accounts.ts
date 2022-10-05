@@ -1,8 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4, validate } from 'uuid';
-import { createAccountSchema, updateAccountSchema, options } from '../utils/utils';
+import { createAccountSchema, options } from '../utils/utils';
 import { AccountInstance } from '../model/accounts';
-
 export async function CreateAccount(req: Request | any, res: Response, next: NextFunction) {
   const id = uuidv4();
   try {
@@ -22,16 +21,13 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
         message: 'Account number is used, please enter another account number',
       });
     }
-
     const record = await AccountInstance.create({
       id: id,
       bankName: req.body.bankName,
       accountNumber: req.body.accountNumber,
       accountName: req.body.accountName,
       userId: userID,
-      // walletBalance: req.body.walletBalance,
     });
-
     if (record) {
       return res.status(201).json({
         status: 'success',
@@ -46,13 +42,12 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
     });
   }
 }
-
 export async function getBankAccounts(req: Request | any, res: Response, next: NextFunction) {
   try {
     console.log('here');
-    const userID = req.user.id;
+    const userId = req.user.id;
     const account = await AccountInstance.findAll({
-      where: { userId: userID },
+      where: { userId: userId },
     });
     if (account) {
       return res.status(200).json({
@@ -68,7 +63,6 @@ export async function getBankAccounts(req: Request | any, res: Response, next: N
     });
   }
 }
-
 export async function deleteBankAccount(req: Request, res: Response, next: NextFunction) {
   try {
     const id = req.params.id;
@@ -89,7 +83,6 @@ export async function deleteBankAccount(req: Request, res: Response, next: NextF
     });
   }
 }
-
 export async function getUserAccount(req: Request | any, res: Response, next: NextFunction) {
   try {
     const userID = req.user.id;
@@ -108,18 +101,5 @@ export async function getUserAccount(req: Request | any, res: Response, next: Ne
       status: 'error',
       message: 'internal server error',
     });
-  }
-}
-
-export async function getAllAccounts(req: Request, res: Response) {
-  try {
-    const allAccounts = await AccountInstance.findAll();
-
-    if (!allAccounts) {
-      return res.status(404).json({ message: 'No accounts found!' });
-    }
-    return res.status(200).json(allAccounts);
-  } catch (error) {
-    return res.status(500).json({ message: 'Sorry failed to fetch accounts', route: '/allaccounts' });
   }
 }
