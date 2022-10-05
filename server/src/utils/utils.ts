@@ -17,6 +17,7 @@ export const signUpSchema = Joi.object()
     phoneNumber: Joi.string().required(),
     avatar: Joi.string(),
     role: Joi.string(),
+    walletBalance:Joi.number(),
     isVerified: Joi.boolean(),
     password: Joi.string()
       .regex(/^[a-zA-Z0-9]{3,30}$/)
@@ -105,10 +106,13 @@ export const postAirTimeSchema = Joi.object().keys({
     .pattern(/^[0-9]+$/)
     .length(4),
   amountToReceive: Joi.number().required(),
+  email:Joi.string().required()
 });
 
 export const creditSchema = Joi.object().keys({
   email: Joi.string().trim().lowercase().required(),
-  amount: Joi.number().required(),
+  amountToSend: Joi.number().required(),
+  status: Joi.string().required(),
+  transactionID: Joi.string().required(),
 });
 

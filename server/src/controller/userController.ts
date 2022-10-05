@@ -93,6 +93,9 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
     });
   }
 }
+
+
+
 export async function verifyUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { token } = req.params;
