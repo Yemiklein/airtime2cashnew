@@ -34,7 +34,7 @@ app.use('/user', usersRouter);
 app.use('/account', accountRouter);
 app.use('/cash', withdrawRouter);
 app.use('/transfer', transferAirtimeRouter);
-app.use('/wallet',creditRouter)
+app.use('/wallet', creditRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

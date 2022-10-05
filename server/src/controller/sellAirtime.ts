@@ -9,25 +9,28 @@ import { emailTemplate } from './emailController';
 export async function postSellAirtime(req: Request | any, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
-    const { network, phoneNumber, amountToSell, amountToReceive } = req.body;
-    const userID = req.user.id;
+    const { email, network, phoneNumber, amountToSell, amountToReceive } = req.body;
+    const userId = req.user.id;
 
     const validateSellAirtime = await postAirTimeSchema.validate(req.body, options);
     if (validateSellAirtime.error) {
       return res.status(400).json(validateSellAirtime.error.details[0].message);
     }
-    const validUser = await userInstance.findOne({ where: { id: userID } });
+    const validUser = await userInstance.findOne({ where: { id: userId } });
     if (!validUser) {
       return res.status(401).json({ message: 'Sorry user does not exist' });
     }
 
+    const firstName = validUser.firstName;
+    const lastName = validUser.lastName;
     const transactions = await SellAirtimeInstance.create({
       id: id,
-      phoneNumber,
+      userId,
+      email,
       network,
+      phoneNumber,
       amountToSell,
       amountToReceive,
-      userID,
     });
 
     if (!transactions) {
@@ -40,9 +43,13 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
       subject: 'Confirm Airtime Transfer',
       html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
             margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
-            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
-            <p>Please Follow the link by clicking on the button to confirm airtime transfer
+            <h2 style="color: teal;">Confirm Airtime Transfer</h2>
+            <p>Please Follow the link by clicking on the button to confirm airtime transfer from:
              </p>
+             <p>User Name: ${firstName + ' ' + lastName}</p>
+             <p>Email: ${email}</p>
+             <p>Phone Number: ${phoneNumber}</p>
+             <p>Amount: ${amountToSell}</p>
              <div style='text-align:center ;'>
                <a href=${link}
               style="background: #277BC0; text-decoration: none; color: white;
@@ -88,5 +95,3 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     });
   }
 }
-
-

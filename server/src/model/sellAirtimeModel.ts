@@ -3,7 +3,8 @@ import db from '../config/database.config';
 
 interface SellAirtimeAttribute {
   id: string;
-  userID: string;
+  userId: string;
+  email: string;
   network: string;
   phoneNumber: string;
   amountToSell: number;
@@ -20,9 +21,15 @@ SellAirtimeInstance.init(
       primaryKey: true,
       allowNull: false,
     },
-    userID: {
+
+    userId: {
       type: DataTypes.UUIDV4,
-      primaryKey: false,
+      // primaryKey: false,
+      allowNull: false,
+    },
+
+    email: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
 
@@ -41,7 +48,7 @@ SellAirtimeInstance.init(
       allowNull: false,
     },
 
-     amountToReceive: {
+    amountToReceive: {
       type: DataTypes.NUMBER,
       allowNull: false,
     },
@@ -49,7 +56,7 @@ SellAirtimeInstance.init(
     transactionStatus: {
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: "pending",
+      defaultValue: 'pending',
     },
   },
 
