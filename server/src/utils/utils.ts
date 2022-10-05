@@ -37,7 +37,7 @@ export const updateUserSchema = Joi.object().keys({
   avatar: Joi.string(),
   userName: Joi.string(),
   walletBalance: Joi.number(),
-  role:Joi.string()
+  role: Joi.string(),
 });
 
 export const loginSchema = Joi.object().keys({
@@ -106,7 +106,7 @@ export const postAirTimeSchema = Joi.object().keys({
     .pattern(/^[0-9]+$/)
     .length(4),
   amountToReceive: Joi.number().required(),
-  email:Joi.string().required()
+  email: Joi.string().trim().lowercase().required(),
 });
 
 export const creditSchema = Joi.object().keys({
@@ -115,4 +115,3 @@ export const creditSchema = Joi.object().keys({
   status: Joi.string().required(),
   transactionID: Joi.string().required(),
 });
-
