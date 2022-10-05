@@ -5,13 +5,7 @@ import { withdrawSchema, options } from '../utils/utils';
 import { WithdrawHistoryInstance } from '../model/withdrawalHistory';
 import { AccountInstance } from '../model/accounts';
 import { userInstance } from '../model/userModel';
-
-const Flutterwave = require('flutterwave-node-v3');
-// const flw = new Flutterwave(String(process.env.FLUTTERWAVE_PUBLIC_KEY), String(process.env.FLUTTERWAVE_SECRET_KEY));
-const flw = new Flutterwave(
-  'FLWPUBK_TEST-ab9110a6e892c4d8003972c67262c709-X',
-  'FLWSECK_TEST-7b7484a72d3c70d324c71e63d399b879-X',
-);
+import { initTrans, getAllBanksNG } from './fluter';
 
 export const withdraw = async (req: Request | any, res: Response, next: NextFunction) => {
   const id = uuidv4();
@@ -55,33 +49,53 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
     }
 
     //  withdraw from user wallet aallow payment gateway to come in here
+    let allBanks = await getAllBanksNG();
+    const bankCode = allBanks.data.filter((item) => item.name.toLowerCase() == bank.toLowerCase());
+    let code = bankCode[0].code;
+
     const details = {
-      account_bank: bank,
+      // account_bank: "044",
+      account_bank: code,
+      // account_number:"0690000040",
       account_number: accountNumber,
       amount: amount,
+      narration: 'Airtime for cash',
       currency: 'NGN',
-      narration: 'Withdrawal from airtime2cash wallet',
-      reference: 'airtime2cash',
+      //reference: generateTransactionReference(),
       callback_url: 'https://webhook.site/b3e505b0-fe02-430e-a538-22bbbce8ce0d',
+      debit_currency: 'NGN',
     };
-    flw.Transfer.initiate(details).then(console.log).catch(console.log);
+
+    const result = await initTrans(details);
 
     //  withdraw from user wallet and update user wallet balance
-    const newBalance = currentWalletBalance - amount;
-    const withdraw = await userInstance.update({ walletBalance: newBalance }, { where: { id: userId } });
-    const transaction = await WithdrawHistoryInstance.create({
-      id: id,
-      userId: userId,
-      amount: amount,
-      accountNumber: accountNumber,
-      bank,
-      status: true,
-    });
-    return res.status(201).json({
-      message: 'Withdraw successful',
-      newBalance: newBalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','),
-      transaction,
-    });
+    if (result.status === 'success') {
+      const newBalance = currentWalletBalance - amount;
+      const withdraw = await userInstance.update({ walletBalance: newBalance }, { where: { id: userId } });
+      const transaction = await WithdrawHistoryInstance.create({
+        id: id,
+        userId: userId,
+        amount: amount,
+        accountNumber: accountNumber,
+        bank,
+        status: true,
+      });
+      return res.status(201).json({
+        message: 'Withdraw successful',
+        newBalance: newBalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+        transaction,
+      });
+    } else {
+      await WithdrawHistoryInstance.create({
+        id: id,
+        userId: userId,
+        amount: amount,
+        accountNumber: accountNumber,
+        bank,
+        status: false,
+      });
+      return res.status(400).json({ message: 'Network Error. Withdraw failed' });
+    }
   } catch (error) {
     return res.status(500).json({
       status: 'error',
