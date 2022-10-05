@@ -48,6 +48,7 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
+<<<<<<< HEAD
     //  withdraw from user wallet aallow payment gateway to come in here
     let allBanks = await getAllBanksNG();
     const bankCode = allBanks.data.filter((item) => item.name.toLowerCase() == bank.toLowerCase());
@@ -58,6 +59,15 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
       account_bank: code,
       // account_number:"0690000040",
       account_number: accountNumber,
+=======
+    //  withdraw from user wallet allow payment gateway to come in here
+    //  withdraw from user wallet and update user wallet balance
+    const newBalance = currentWalletBalance - amount;
+    const withdraw = await userInstance.update({ walletBalance: newBalance }, { where: { id: userId } });
+    const transaction = await WithdrawHistoryInstance.create({
+      id: id,
+      userId: userId,
+>>>>>>> develop
       amount: amount,
       narration: 'Airtime for cash',
       currency: 'NGN',

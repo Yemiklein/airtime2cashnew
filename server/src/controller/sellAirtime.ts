@@ -4,75 +4,66 @@ import { AccountInstance } from '../model/accounts';
 import { SellAirtimeInstance } from '../model/sellAirtimeModel';
 import { userInstance } from '../model/userModel';
 import { createAccountSchema, options, postAirTimeSchema } from '../utils/utils';
-
-const adminNumbers = ['08030008610', '08054240322', '09089876789', '08025678909'];
-const network = ['MTN', 'GLO', '9MOBILE', 'AIRTEL'];
+import { emailTemplate } from './emailController';
 
 export async function postSellAirtime(req: Request | any, res: Response, next: NextFunction) {
-  const id = uuidv4();
   try {
-    const { network, phoneNumber, amountToSell, sharePin } = req.body;
-    const userID = req.user.id;
+    const id = uuidv4();
+    const { email, network, phoneNumber, amountToSell, amountToReceive } = req.body;
+    const userId = req.user.id;
 
     const validateSellAirtime = await postAirTimeSchema.validate(req.body, options);
     if (validateSellAirtime.error) {
       return res.status(400).json(validateSellAirtime.error.details[0].message);
     }
-    const validUser = await userInstance.findOne({ where: { id: userID } });
+    const validUser = await userInstance.findOne({ where: { id: userId } });
     if (!validUser) {
       return res.status(401).json({ message: 'Sorry user does not exist' });
     }
-    const amountToReceive = 0.7 * amountToSell;
-    let destinationPhoneNumber;
 
-    let USSD;
-    switch (network) {
-      case 'MTN':
-        destinationPhoneNumber = adminNumbers[0];
-        USSD = `*600*${destinationPhoneNumber}*${amountToSell}*${sharePin}#`;
-
-        break;
-
-      case 'GLO':
-        destinationPhoneNumber = adminNumbers[1];
-        USSD = `*131*${destinationPhoneNumber}*${amountToSell}*${sharePin}#`;
-        break;
-
-      case '9MOBILE':
-        destinationPhoneNumber = adminNumbers[2];
-        USSD = `*223*${sharePin}*${amountToSell}*${destinationPhoneNumber}#`;
-        break;
-
-      case 'AIRTEL':
-        destinationPhoneNumber = adminNumbers[3];
-        USSD = `*432*${destinationPhoneNumber}*${amountToSell}*${sharePin}#`;
-        break;
-
-      default:
-        res.status(400).json({ message: 'Please select a Network' });
-        break;
-    }
-
-    // res
-    //   .status(201)
-    //   .json({ network, phoneNumber, amountToSell, sharePin, destinationPhoneNumber, USSD, amountToReceive });
+    const firstName = validUser.firstName;
+    const lastName = validUser.lastName;
     const transactions = await SellAirtimeInstance.create({
       id: id,
-      phoneNumber,
+      userId,
+      email,
       network,
+      phoneNumber,
       amountToSell,
-      userID,
+      amountToReceive,
     });
 
     if (!transactions) {
       res.status(404).json({ message: 'Sorry, transaction was not successful' });
     }
+
+    const link = `${process.env.FRONTEND_URL}/dashboard/admin`;
+    const emailData = {
+      to: `${process.env.ADMIN_EMAIL}`,
+      subject: 'Confirm Airtime Transfer',
+      html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+            margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+            <h2 style="color: teal;">Confirm Airtime Transfer</h2>
+            <p>Please Follow the link by clicking on the button to confirm airtime transfer from:
+             </p>
+             <p>User Name: ${firstName + ' ' + lastName}</p>
+             <p>Email: ${email}</p>
+             <p>Phone Number: ${phoneNumber}</p>
+             <p>Amount: ${amountToSell}</p>
+             <div style='text-align:center ;'>
+               <a href=${link}
+              style="background: #277BC0; text-decoration: none; color: white;
+               padding: 10px 20px; margin: 10px 0;
+              display: inline-block;">Click here</a>
+             </div>
+          </div>`,
+    };
+    emailTemplate(emailData);
     return res.status(201).json(transactions);
-  } catch (error: any) {
-    console.log(error);
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error });
   }
 }
-
 
 export async function allTransactions(req: Request | any, res: Response, next: NextFunction) {
   try {
@@ -86,17 +77,17 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     if (!Number.isNaN(sizeAsNumber) && sizeAsNumber > 0 && sizeAsNumber < 15) {
       size = sizeAsNumber;
     }
-   const transactions = await SellAirtimeInstance.findAndCountAll({
+    const transactions = await SellAirtimeInstance.findAndCountAll({
       limit: size,
       offset: page * size,
     });
     if (!transactions) {
       return res.status(404).json({ message: 'No transaction found' });
     }
-    return res.send ({
+    return res.send({
       content: transactions.rows,
       totalPages: Math.ceil(transactions.count / size),
-    })
+    });
   } catch (error) {
     return res.status(500).json({
       status: 'error',

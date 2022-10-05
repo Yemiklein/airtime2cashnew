@@ -2,6 +2,10 @@ import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4, validate } from 'uuid';
 import { createAccountSchema, options } from '../utils/utils';
 import { AccountInstance } from '../model/accounts';
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
 export async function CreateAccount(req: Request | any, res: Response, next: NextFunction) {
   const id = uuidv4();
   try {

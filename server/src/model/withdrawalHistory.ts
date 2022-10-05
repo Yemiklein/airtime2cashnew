@@ -7,7 +7,11 @@ interface WithdrawHistoryAttribute {
   userId: string;
   status: boolean;
   accountNumber: string;
+<<<<<<< HEAD
   bank: string;
+=======
+  bankName: string;
+>>>>>>> develop
 }
 
 export class WithdrawHistoryInstance extends Model<WithdrawHistoryAttribute> {}
