@@ -9,7 +9,7 @@ import { emailTemplate } from './emailController';
 export async function postSellAirtime(req: Request | any, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
-    const { email, network, phoneNumber, amountToSell, amountToReceive } = req.body;
+    const { network, phoneNumber, amountToSell, amountToReceive } = req.body;
     const userId = req.user.id;
 
     const validateSellAirtime = await postAirTimeSchema.validate(req.body, options);
@@ -20,6 +20,8 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
     if (!validUser) {
       return res.status(401).json({ message: 'Sorry user does not exist' });
     }
+    let email = validUser.email 
+    // console.log(validUser.email);
 
     const firstName = validUser.firstName;
     const lastName = validUser.lastName;
