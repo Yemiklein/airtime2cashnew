@@ -286,6 +286,7 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
             avatar: `${validUser.avatar}`,
+            role: `${validUser.role}`,
           },
         });
     }

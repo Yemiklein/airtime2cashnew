@@ -18,9 +18,10 @@ let transporter = nodemailer.createTransport({
 // EMAIL SENDING FUNCTION
 export const emailTemplate = async (emailData: Record<string, string>) => {
   return new Promise((resolve, reject) => {
-    const { to, subject, text, html } = emailData;
+    const { from, to, subject, text, html } = emailData;
+    !from && (emailData.from = process.env.EMAIL_USERNAME as string);
     const mailOptions = {
-      from: process.env.EMAIL_USERNAME,
+      from,
       to,
       subject,
       text,
