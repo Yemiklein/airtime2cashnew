@@ -487,12 +487,13 @@ export async function userWithdrawals(req: Request | any, res: Response, next: N
           as: 'withdrawBalance',
         },
       ],
+      order: [[{ model: WithdrawHistoryInstance, as: 'withdrawBalance' }, 'createdAt', 'DESC']],
     });
 
     return res.status(200).json({
       status: 'success',
       message: 'Withdrawals retrieved successfully',
-      data: record,
+      data: record[0].withdrawBalance,
     });
   } catch (error) {
     return res.status(500).json({
