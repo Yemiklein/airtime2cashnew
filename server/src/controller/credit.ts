@@ -3,47 +3,85 @@ import { userInstance } from '../model/userModel';
 import { CreditInstance } from '../model/credit';
 import { creditSchema, options } from '../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
+import { SellAirtimeInstance } from '../model/sellAirtimeModel';
+import { emailTemplate } from './emailController';
 
 export async function credit(req: Request | any, res: Response, next: NextFunction) {
     const id = uuidv4()
     try {
-        
-            const userID = req.user.id;
-            const { email, amount} = req.body;
+            // const userID = req.user.id;
+            const { email, amountToSend, status, transactionID} = req.body;
+
+            // JOY VALIDATION
             const validatedInput = await creditSchema.validateAsync(req.body, options);
           if (validatedInput.error) {
             return res.status(400).json(validatedInput.error.details[0].message);
           }
+
+        //  GET CUSTOMER BY EMAIL
           const customer = await userInstance.findOne({where: {email}})
+          console.log(customer)
+
           if(!customer){
               return res.status(404).json({message:"customer not found"})
           }
 
-          const Admin:any = await userInstance.findOne({where:{id:userID}});
 
-          const adminWallet = Admin.walletBalance;
+        // CREDIT THE USER WALLET
+          const newCustomerWalletBalance = customer.walletBalance + amountToSend;
 
-          if(adminWallet < amount){
-              return res.status(404).json({
-                  message:'insufficient fund'
-              })
+
+          const getTransaction = await SellAirtimeInstance.findOne({
+            where:{id:transactionID, transactionStatus:"pending"}
+          })
+          if(!getTransaction){
+            return res.status(404).json({
+                message:"Transaction not found",
+                Transaction:getTransaction
+            })
           }
-          const newCustomerWalletBalance = customer.walletBalance + amount;
-          const newAdminWalletBalance = adminWallet - amount;
-          
+
+
+          const updateStatus = await SellAirtimeInstance.update({
+            transactionStatus:status},{where:{id:transactionID}
+          })
+
+          if(status === 'sent'){
           const creditedCustomer = await userInstance.update({walletBalance:newCustomerWalletBalance}, {where:{email}});
-          
-          const updatedAdmin = await userInstance.update({walletBalance:newAdminWalletBalance}, {where:{id:userID}});
-          
-      
-          const creditRecord = await CreditInstance.create({id:id, email, userId: userID, amount });
+
+          const link = `${process.env.FRONTEND_URL}/dashboard/admin`;
+      const emailData = {
+        to: `${process.env.ADMIN_EMAIL}`,
+        subject: 'Payment Confirmed',
+        html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+              margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+              <h2 style="color: teal;">Confirm Transaction</h2>
+              <p>You successfully transfer N${amountToSend} to ${customer.firstName + ' ' + customer.lastName}</p>
+              <p>Email: ${email}</p>
+              <p>Phone Number: ${customer.phoneNumber}</p>
+              <p>Login to get more details</p>
+              <a href=${link}
+              style="background: #277BC0; text-decoration: none; color: white;
+               padding: 10px 20px; margin: 10px 0;
+              display: inline-block;">Click here</a>
+
+            </div>`,
+      };
+      emailTemplate(emailData);
+
           return res.status(201).json({
-              message:`You have successful credited ${email} with the sum of ${amount}`, creditRecord
+              message:`You have successful credited ${email} with the sum of ${amountToSend}`
           });
-          
+        }else{
+            return res.status(500).json({
+                message:"Transaction Cancelled"
+            })
+        }
+
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
-            message:"fail to credit cutomer wallet"
+            message:"fail to credit customer wallet"
         })
     }
 }

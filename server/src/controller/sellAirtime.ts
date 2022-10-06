@@ -21,14 +21,16 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
       return res.status(401).json({ message: 'Sorry user does not exist' });
     }
 
+    const firstName = validUser.firstName;
+    const lastName = validUser.lastName;
     const transactions = await SellAirtimeInstance.create({
       id: id,
-      phoneNumber,
+      userId,
       email,
       network,
+      phoneNumber,
       amountToSell,
       amountToReceive,
-      userId,
     });
 
     if (!transactions) {
@@ -41,9 +43,13 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
       subject: 'Confirm Airtime Transfer',
       html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
             margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
-            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
-            <p>Please Follow the link by clicking on the button to confirm airtime transfer
+            <h2 style="color: teal;">Confirm Airtime Transfer</h2>
+            <p>Please Follow the link by clicking on the button to confirm airtime transfer from:
              </p>
+             <p>User Name: ${firstName + ' ' + lastName}</p>
+             <p>Email: ${email}</p>
+             <p>Phone Number: ${phoneNumber}</p>
+             <p>Amount: ${amountToSell}</p>
              <div style='text-align:center ;'>
                <a href=${link}
               style="background: #277BC0; text-decoration: none; color: white;
