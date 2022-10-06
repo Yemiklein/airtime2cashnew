@@ -17,7 +17,7 @@ export const signUpSchema = Joi.object()
     phoneNumber: Joi.string().required(),
     avatar: Joi.string(),
     role: Joi.string(),
-    walletBalance:Joi.number(),
+    walletBalance: Joi.number(),
     isVerified: Joi.boolean(),
     password: Joi.string()
       .regex(/^[a-zA-Z0-9]{3,30}$/)
@@ -89,7 +89,11 @@ export const withdrawSchema = Joi.object().keys({
     .required()
     .pattern(/^[0-9]+$/)
     .length(10),
-  bankName: Joi.string().trim().required(),
+  bank: Joi.string().trim().required(),
+  accountName: Joi.string().trim().required(),
+  password: Joi.string()
+    .regex(/^[a-zA-Z0-9]{3,30}$/)
+    .required(),
 });
 
 export const postAirTimeSchema = Joi.object().keys({
@@ -106,7 +110,7 @@ export const postAirTimeSchema = Joi.object().keys({
     .pattern(/^[0-9]+$/)
     .length(4),
   amountToReceive: Joi.number().required(),
-  email: Joi.string().trim().lowercase().required(),
+  // email: Joi.string().trim().lowercase().required(),
 });
 
 export const creditSchema = Joi.object().keys({
@@ -114,4 +118,14 @@ export const creditSchema = Joi.object().keys({
   amountToSend: Joi.number().required(),
   status: Joi.string().required(),
   transactionID: Joi.string().required(),
+});
+
+export const updateAccountSchema = Joi.object().keys({
+  bankName: Joi.string().trim(),
+  accountNumber: Joi.string()
+    .trim()
+    .pattern(/^[0-9]+$/)
+    .length(10),
+  accountName: Joi.string().trim(),
+  walletBalance: Joi.number().min(0),
 });
