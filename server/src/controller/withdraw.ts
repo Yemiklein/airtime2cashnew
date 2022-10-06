@@ -6,6 +6,13 @@ import { WithdrawHistoryInstance } from '../model/withdrawalHistory';
 import { AccountInstance } from '../model/accounts';
 import { userInstance } from '../model/userModel';
 import { initTrans, getAllBanksNG } from './fluter';
+import axios from 'axios';
+const Flutterwave = require('flutterwave-node-v3');
+
+const flw = new Flutterwave(
+  'FLWPUBK_TEST-ab9110a6e892c4d8003972c67262c709-X',
+  'FLWSECK_TEST-7b7484a72d3c70d324c71e63d399b879-X',
+);
 
 export const withdraw = async (req: Request | any, res: Response, next: NextFunction) => {
   const id = uuidv4();
@@ -48,30 +55,20 @@ export const withdraw = async (req: Request | any, res: Response, next: NextFunc
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
-<<<<<<< HEAD
     //  withdraw from user wallet aallow payment gateway to come in here
     let allBanks = await getAllBanksNG();
-    const bankCode = allBanks.data.filter((item) => item.name.toLowerCase() == bank.toLowerCase());
+    const bankCode = allBanks.data.filter(
+      (item: Record<string, string>) => item.name.toLowerCase() == bank.toLowerCase(),
+    );
     let code = bankCode[0].code;
+    // return res.status(200).json({ message: 'Bank code', code, allBanks });
 
     const details = {
-      // account_bank: "044",
       account_bank: code,
-      // account_number:"0690000040",
       account_number: accountNumber,
-=======
-    //  withdraw from user wallet allow payment gateway to come in here
-    //  withdraw from user wallet and update user wallet balance
-    const newBalance = currentWalletBalance - amount;
-    const withdraw = await userInstance.update({ walletBalance: newBalance }, { where: { id: userId } });
-    const transaction = await WithdrawHistoryInstance.create({
-      id: id,
-      userId: userId,
->>>>>>> develop
       amount: amount,
       narration: 'Airtime for cash',
       currency: 'NGN',
-      //reference: generateTransactionReference(),
       callback_url: 'https://webhook.site/b3e505b0-fe02-430e-a538-22bbbce8ce0d',
       debit_currency: 'NGN',
     };
@@ -128,5 +125,18 @@ export const getTransactions = async (req: Request | any, res: Response, next: N
       status: 'error',
       message: error,
     });
+  }
+};
+
+export const getAllBanksNgs = async (req: Request, res: Response) => {
+  try {
+    const payload = {
+      country: 'NG', //Pass either NG, GH, KE, UG, ZA or TZ to get list of banks in Nigeria, Ghana, Kenya, Uganda, South Africa or Tanzania respectively
+    };
+    const response = await flw.Bank.country(payload);
+    console.log(response);
+    return res.status(200).json({ response });
+  } catch (error) {
+    console.log(error);
   }
 };

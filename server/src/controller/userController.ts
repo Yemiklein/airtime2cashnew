@@ -285,10 +285,7 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
             phoneNumber: `${validUser.phoneNumber}`,
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
-<<<<<<< HEAD
             walletBalance: `${validUser.walletBalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`,
-=======
->>>>>>> develop
             avatar: `${validUser.avatar}`,
           },
         });
