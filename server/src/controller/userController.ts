@@ -287,6 +287,7 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
             email: `${validUser.email}`,
             walletBalance: `${validUser.walletBalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`,
             avatar: `${validUser.avatar}`,
+            role: `${validUser.role}`,
           },
         });
     }
