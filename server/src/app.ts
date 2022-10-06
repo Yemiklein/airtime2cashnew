@@ -12,7 +12,7 @@ import accountRouter from './routes/accounts';
 import withdrawRouter from './routes/withdraw';
 import transferAirtimeRouter from './routes/transaction';
 import creditRouter from './routes/credit';
-db.sync({force:true})
+db.sync({})
   .then(() => {
     console.log('Database connected successfully 🚀');
   })
