@@ -4,8 +4,8 @@ import { sendEmail, options } from '../utils/utils';
 // EMAIL SERVER CONFIGURATION
 let transporter = nodemailer.createTransport({
   // service: 'outlook',
-  port: 587,
-  service: 'outlook',
+  // port: 587,
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USERNAME as string,
     pass: process.env.EMAIL_PASSWORD as string,
@@ -18,9 +18,10 @@ let transporter = nodemailer.createTransport({
 // EMAIL SENDING FUNCTION
 export const emailTemplate = async (emailData: Record<string, string>) => {
   return new Promise((resolve, reject) => {
-    const { to, subject, text, html } = emailData;
+    const { from, to, subject, text, html } = emailData;
+    !from && (emailData.from = process.env.EMAIL_USERNAME as string);
     const mailOptions = {
-      from: process.env.EMAIL_USERNAME,
+      from,
       to,
       subject,
       text,
