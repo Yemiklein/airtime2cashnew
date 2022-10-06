@@ -85,6 +85,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
         avatar: record.avatar,
         isVerified: record.isVerified,
         token: record.token,
+        walletBalance: record.walletBalance
       },
     });
   } catch (err) {
@@ -456,7 +457,10 @@ export async function userTransactions(req: Request | any, res: Response, next: 
           as: 'SellAirtime',
         },
       ],
+      order: [[{ model: SellAirtimeInstance, as: 'SellAirtime' }, 'createdAt', 'DESC']],
     });
+
+
 
     return res.status(200).json({
       status: 'success',
