@@ -94,6 +94,9 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
     });
   }
 }
+
+
+
 export async function verifyUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { token } = req.params;
@@ -284,6 +287,7 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
             avatar: `${validUser.avatar}`,
+            role: `${validUser.role}`,
           },
         });
     }

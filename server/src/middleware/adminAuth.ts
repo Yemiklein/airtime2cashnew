@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 const secret = process.env.JWT_SECRET as string;
 import { userInstance } from '../model/userModel';
 
-export async function auth(req: Request | any, res: Response, next: NextFunction) {
+export async function adminAuth(req: Request | any, res: Response, next: NextFunction) {
   try {
     const authorization: string = req.headers.authorization.split(' ')[1];
     if (!authorization) {
@@ -20,6 +20,7 @@ export async function auth(req: Request | any, res: Response, next: NextFunction
         Error: 'User not verified, you cant access this route',
       });
     }
+
     const { id } = verified as { [key: string]: string };
 
     const user = await userInstance.findOne({ where: { id } });
@@ -28,13 +29,13 @@ export async function auth(req: Request | any, res: Response, next: NextFunction
       return res.status(404).json({
         Error: 'User not verified',
       });
+    } 
+    
+    if(user.role !== 'admin' ) {
+      return res.status(401).json({
+        Error: 'You are not authorized to access this route',
+      });
     }
-
-    // if(user.role !== 'admin' && req.originalUrl =="/transfer/alltransactions" ) {
-    //   return res.status(401).json({
-    //     Error: 'You are not authorized to access this route',
-    //   });
-    // }
  
     req.user = verified;
     next();

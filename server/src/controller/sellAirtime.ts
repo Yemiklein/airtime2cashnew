@@ -73,20 +73,26 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     if (!Number.isNaN(pageAsNumber) && pageAsNumber > 0) {
       page = pageAsNumber;
     }
+
     let size = 15;
     if (!Number.isNaN(sizeAsNumber) && sizeAsNumber > 0 && sizeAsNumber < 15) {
       size = sizeAsNumber;
     }
+
     const transactions = await SellAirtimeInstance.findAndCountAll({
       limit: size,
       offset: page * size,
+      order: [['createdAt', 'DESC']]
     });
+
+
     if (!transactions) {
       return res.status(404).json({ message: 'No transaction found' });
     }
     return res.send({
       content: transactions.rows,
       totalPages: Math.ceil(transactions.count / size),
+      totalTransactions: transactions.count
     });
   } catch (error) {
     return res.status(500).json({
@@ -95,3 +101,44 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     });
   }
 }
+
+export async function pendingTransactions(req: Request | any, res: Response, next: NextFunction) {
+  try {
+    const pageAsNumber = Number.parseInt(req.query.page);
+    const sizeAsNumber = Number.parseInt(req.query.size);
+    const allPending = req.query.allPending;
+    let page = 0;
+    if (!Number.isNaN(pageAsNumber) && pageAsNumber > 0) {
+      page = pageAsNumber;
+    }
+
+    let size = 15;
+    if (!Number.isNaN(sizeAsNumber) && sizeAsNumber > 0 && sizeAsNumber < 15) {
+      size = sizeAsNumber;
+    }
+
+    const transactions = await SellAirtimeInstance.findAndCountAll({
+      where: { transactionStatus: allPending},
+      limit: size,
+      offset: page * size,
+      order: [['createdAt', 'DESC']]
+    });
+
+
+    if (!transactions) {
+      return res.status(404).json({ message: 'No transaction found' });
+    }
+    return res.send({
+      content: transactions.rows,
+      totalPages: Math.ceil(transactions.count / size),
+      totalTransactions: transactions.count
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
+  }
+}
+
+
