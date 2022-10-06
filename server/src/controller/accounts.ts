@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4, validate } from 'uuid';
 import { createAccountSchema, options } from '../utils/utils';
 import { AccountInstance } from '../model/accounts';
-
 export async function CreateAccount(req: Request | any, res: Response, next: NextFunction) {
   const id = uuidv4();
   try {
@@ -22,7 +21,6 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
         message: 'Account number is used, please enter another account number',
       });
     }
-
     const record = await AccountInstance.create({
       id: id,
       bankName: req.body.bankName,
@@ -30,7 +28,6 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
       accountName: req.body.accountName,
       userId: userID,
     });
-
     if (record) {
       return res.status(201).json({
         status: 'success',
@@ -45,7 +42,6 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
     });
   }
 }
-
 export async function getBankAccounts(req: Request | any, res: Response, next: NextFunction) {
   try {
     console.log('here');
@@ -67,7 +63,6 @@ export async function getBankAccounts(req: Request | any, res: Response, next: N
     });
   }
 }
-
 export async function deleteBankAccount(req: Request, res: Response, next: NextFunction) {
   try {
     const id = req.params.id;
@@ -88,7 +83,6 @@ export async function deleteBankAccount(req: Request, res: Response, next: NextF
     });
   }
 }
-
 export async function getUserAccount(req: Request | any, res: Response, next: NextFunction) {
   try {
     const userID = req.user.id;
