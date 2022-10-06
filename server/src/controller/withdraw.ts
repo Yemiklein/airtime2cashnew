@@ -7,12 +7,6 @@ import { AccountInstance } from '../model/accounts';
 import { userInstance } from '../model/userModel';
 import { initTrans, getAllBanksNG } from './fluter';
 import axios from 'axios';
-const Flutterwave = require('flutterwave-node-v3');
-
-const flw = new Flutterwave(
-  'FLWPUBK_TEST-ab9110a6e892c4d8003972c67262c709-X',
-  'FLWSECK_TEST-7b7484a72d3c70d324c71e63d399b879-X',
-);
 
 export const withdraw = async (req: Request | any, res: Response, next: NextFunction) => {
   const id = uuidv4();
@@ -125,18 +119,5 @@ export const getTransactions = async (req: Request | any, res: Response, next: N
       status: 'error',
       message: error,
     });
-  }
-};
-
-export const getAllBanksNgs = async (req: Request, res: Response) => {
-  try {
-    const payload = {
-      country: 'NG', //Pass either NG, GH, KE, UG, ZA or TZ to get list of banks in Nigeria, Ghana, Kenya, Uganda, South Africa or Tanzania respectively
-    };
-    const response = await flw.Bank.country(payload);
-    console.log(response);
-    return res.status(200).json({ response });
-  } catch (error) {
-    console.log(error);
   }
 };
