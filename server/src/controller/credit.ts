@@ -43,7 +43,7 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
 
 
           const updateStatus = await SellAirtimeInstance.update({
-            transactionStatus:status},{where:{id:transactionID}
+            transactionStatus:status},{where:{id:transactionID, amountToReceive:amountToSend}
           })
 
           if(status === 'sent'){
@@ -68,6 +68,23 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
             </div>`,
       };
       emailTemplate(emailData);
+
+      const link2 = `${process.env.FRONTEND_URL}/login`;
+      const emailData2 = {
+        to: `${process.env.ADMIN_EMAIL}`,
+        subject: 'Payment Confirmed',
+        html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
+              margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
+              <h2 style="color: teal;">Airtime2Cash Payment</h2>
+              <p>You wallet has been credited successfully with N${amountToSend}</p>
+              <p>Login to get more details</p>
+              <a href=${link2}
+              style="background: #277BC0; text-decoration: none; color: white;
+               padding: 10px 20px; margin: 10px 0;
+              display: inline-block;">Click here</a>
+            </div>`,
+      };
+      emailTemplate(emailData2);
 
           return res.status(201).json({
               message:`You have successful credited ${email} with the sum of ${amountToSend}`
