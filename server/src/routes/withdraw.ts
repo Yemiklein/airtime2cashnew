@@ -4,6 +4,6 @@ import { auth } from '../middleware/auth';
 import { withdraw, getTransactions } from '../controller/withdraw';
 
 router.post('/withdraw', auth, withdraw);
-router.get('/gettransactions', getTransactions);
+router.get('/gettransactions', auth, getTransactions);
 
 export default router;

@@ -10,7 +10,8 @@ import {
   allUsers,
   resendVerificationLink,
   getUserAccount,
-  userTransactions
+  userTransactions,
+  userWithdrawals,
 } from '../controller/userController';
 import { auth } from '../middleware/auth';
 
@@ -23,10 +24,10 @@ router.post('/login', userLogin);
 router.post('/forgetPassword', forgetPassword);
 router.patch('/update/:id', auth, updateUser);
 router.patch('/resetPassword/:token', resetPassword);
-router.patch('/resendVerification',resendVerificationLink)
+router.patch('/resendVerification', resendVerificationLink);
 router.get('/userAccount/:id', auth, getUserAccount);
 router.get('/userTransaction/:id', auth, userTransactions);
-
+router.get('/userWithdrawals/:id', auth, userWithdrawals);
 
 router.get('/singleUser/:id', singleUser);
 router.get('/allUsers', allUsers);

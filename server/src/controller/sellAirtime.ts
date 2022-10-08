@@ -9,7 +9,7 @@ import { emailTemplate } from './emailController';
 export async function postSellAirtime(req: Request | any, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
-    const { email, network, phoneNumber, amountToSell, amountToReceive } = req.body;
+    const { network, phoneNumber, amountToSell, amountToReceive } = req.body;
     const userId = req.user.id;
 
     const validateSellAirtime = await postAirTimeSchema.validate(req.body, options);
@@ -20,15 +20,19 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
     if (!validUser) {
       return res.status(401).json({ message: 'Sorry user does not exist' });
     }
+    let email = validUser.email 
+    // console.log(validUser.email);
 
+    const firstName = validUser.firstName;
+    const lastName = validUser.lastName;
     const transactions = await SellAirtimeInstance.create({
       id: id,
-      phoneNumber,
+      userId,
       email,
       network,
+      phoneNumber,
       amountToSell,
       amountToReceive,
-      userId,
     });
 
     if (!transactions) {
@@ -41,9 +45,13 @@ export async function postSellAirtime(req: Request | any, res: Response, next: N
       subject: 'Confirm Airtime Transfer',
       html: ` <div style="max-width: 700px;text-align: center; text-transform: uppercase;
             margin:auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 110%;">
-            <h2 style="color: teal;">Welcome To Airtime to Cash</h2>
-            <p>Please Follow the link by clicking on the button to confirm airtime transfer
+            <h2 style="color: teal;">Confirm Airtime Transfer</h2>
+            <p>Please Follow the link by clicking on the button to confirm airtime transfer from:
              </p>
+             <p>User Name: ${firstName + ' ' + lastName}</p>
+             <p>Email: ${email}</p>
+             <p>Phone Number: ${phoneNumber}</p>
+             <p>Amount: ${amountToSell}</p>
              <div style='text-align:center ;'>
                <a href=${link}
               style="background: #277BC0; text-decoration: none; color: white;
@@ -67,20 +75,26 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     if (!Number.isNaN(pageAsNumber) && pageAsNumber > 0) {
       page = pageAsNumber;
     }
+
     let size = 15;
     if (!Number.isNaN(sizeAsNumber) && sizeAsNumber > 0 && sizeAsNumber < 15) {
       size = sizeAsNumber;
     }
+
     const transactions = await SellAirtimeInstance.findAndCountAll({
       limit: size,
       offset: page * size,
+      order: [['createdAt', 'DESC']]
     });
+
+
     if (!transactions) {
       return res.status(404).json({ message: 'No transaction found' });
     }
     return res.send({
       content: transactions.rows,
       totalPages: Math.ceil(transactions.count / size),
+      totalTransactions: transactions.count
     });
   } catch (error) {
     return res.status(500).json({
@@ -89,3 +103,44 @@ export async function allTransactions(req: Request | any, res: Response, next: N
     });
   }
 }
+
+export async function pendingTransactions(req: Request | any, res: Response, next: NextFunction) {
+  try {
+    const pageAsNumber = Number.parseInt(req.query.page);
+    const sizeAsNumber = Number.parseInt(req.query.size);
+    const allPending = req.query.allPending;
+    let page = 0;
+    if (!Number.isNaN(pageAsNumber) && pageAsNumber > 0) {
+      page = pageAsNumber;
+    }
+
+    let size = 15;
+    if (!Number.isNaN(sizeAsNumber) && sizeAsNumber > 0 && sizeAsNumber < 15) {
+      size = sizeAsNumber;
+    }
+
+    const transactions = await SellAirtimeInstance.findAndCountAll({
+      where: { transactionStatus: allPending},
+      limit: size,
+      offset: page * size,
+      order: [['createdAt', 'DESC']]
+    });
+
+
+    if (!transactions) {
+      return res.status(404).json({ message: 'No transaction found' });
+    }
+    return res.send({
+      content: transactions.rows,
+      totalPages: Math.ceil(transactions.count / size),
+      totalTransactions: transactions.count
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
+  }
+}
+
+

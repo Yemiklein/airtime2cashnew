@@ -3,5 +3,6 @@ node_modules/
 jspm_packages/
 dist
 .env
+.sqlite
 coverage
 data.txt

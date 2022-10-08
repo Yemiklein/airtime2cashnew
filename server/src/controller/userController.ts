@@ -14,6 +14,7 @@ import { emailTemplate } from './emailController';
 import cloudinary from 'cloudinary';
 import { AccountInstance } from '../model/accounts';
 import { SellAirtimeInstance } from '../model/sellAirtimeModel';
+import { WithdrawHistoryInstance } from '../model/withdrawalHistory';
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
   try {
     const id = uuidv4();
@@ -84,6 +85,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
         avatar: record.avatar,
         isVerified: record.isVerified,
         token: record.token,
+        walletBalance: record.walletBalance
       },
     });
   } catch (err) {
@@ -285,7 +287,9 @@ export async function userLogin(req: Request, res: Response, next: NextFunction)
             phoneNumber: `${validUser.phoneNumber}`,
             userName: `${validUser.userName}`,
             email: `${validUser.email}`,
+            walletBalance: `${validUser.walletBalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`,
             avatar: `${validUser.avatar}`,
+            role: `${validUser.role}`,
           },
         });
     }
@@ -442,7 +446,6 @@ export async function getUserAccount(req: Request | any, res: Response, next: Ne
 }
 
 export async function userTransactions(req: Request | any, res: Response, next: NextFunction) {
-
   try {
     const { id } = req.params;
 
@@ -450,21 +453,50 @@ export async function userTransactions(req: Request | any, res: Response, next: 
       where: { id },
       include: [
         {
-        model: SellAirtimeInstance,
-        as: 'SellAirtime'
+          model: SellAirtimeInstance,
+          as: 'SellAirtime',
         },
       ],
+      order: [[{ model: SellAirtimeInstance, as: 'SellAirtime' }, 'createdAt', 'DESC']],
     });
+
 
 
     return res.status(200).json({
       status: 'success',
       message: 'Transactions retrieved successfully',
-      data: record[0].SellAirtime
-    })
-  } catch(error){
+      data: record[0].SellAirtime,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
+  }
+}
 
-      return res.status(500).json({
+export async function userWithdrawals(req: Request | any, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+
+    const record = await userInstance.findAll({
+      where: { id },
+      include: [
+        {
+          model: WithdrawHistoryInstance,
+          as: 'withdrawBalance',
+        },
+      ],
+      order: [[{ model: WithdrawHistoryInstance, as: 'withdrawBalance' }, 'createdAt', 'DESC']],
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Withdrawals retrieved successfully',
+      data: record[0].withdrawBalance,
+    });
+  } catch (error) {
+    return res.status(500).json({
       status: 'error',
       message: error,
     });

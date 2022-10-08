@@ -3,7 +3,7 @@ import db from '../config/database.config';
 import { AccountInstance } from './accounts';
 import { SellAirtimeInstance } from './sellAirtimeModel';
 import { WithdrawHistoryInstance } from './withdrawalHistory';
-interface userAttributes {
+export interface userAttributes {
   id: string;
   firstName: string;
   lastName: string;
