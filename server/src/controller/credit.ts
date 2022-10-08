@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { userInstance } from '../model/userModel';
-import { CreditInstance } from '../model/credit';
 import { creditSchema, options } from '../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { SellAirtimeInstance } from '../model/sellAirtimeModel';
