@@ -4,6 +4,7 @@ import { creditSchema, options } from '../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { SellAirtimeInstance } from '../model/sellAirtimeModel';
 import { emailTemplate } from './emailController';
+import speakeasy from "speakeasy";
 
 export async function credit(req: Request | any, res: Response, next: NextFunction) {
     const id = uuidv4()
@@ -11,7 +12,7 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
             // const userID = req.user.id;
             const { email, amountToSend, status, transactionID} = req.body;
 
-            // JOY VALIDATION
+            // JOI VALIDATION
             const validatedInput = await creditSchema.validateAsync(req.body, options);
           if (validatedInput.error) {
             return res.status(400).json(validatedInput.error.details[0].message);
@@ -101,3 +102,23 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
         })
     }
 }
+
+// // TWO FACTOR AUTHENTICATION
+
+//  TO GENERATE A KEY
+// export async function generate(req: Request | any, res: Response, next: NextFunction) {
+
+//   const id = uuidv4();
+//   try {
+//     const path = `/wallet/${id}`;
+//     // Create temporary secret until it it verified
+//     const temp_secret = speakeasy.generateSecret({length:20});
+//     // Create user in the database
+//     // db.push(path, { id, temp_secret });
+//     // Send user id and base32 key to user
+//     res.json({ id, secret: temp_secret.base32 })
+//   } catch(e) {
+//     console.log(e);
+//     res.status(500).json({ message: 'Error generating secret key'})
+//   }
+// }
