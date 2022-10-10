@@ -35,6 +35,9 @@ app.use('/account', accountRouter);
 app.use('/cash', withdrawRouter);
 app.use('/transfer', transferAirtimeRouter);
 app.use('/wallet', creditRouter);
+app.use('/', (req,res) => {
+  res.send('Airtime2Cash PODF API. Click here to view documentation')
+})
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

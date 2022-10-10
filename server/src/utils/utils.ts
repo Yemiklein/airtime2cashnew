@@ -1,4 +1,4 @@
-import Joi from 'Joi';
+import Joi from 'joi';
 import jwt from 'jsonwebtoken';
 export const sendEmail = Joi.object().keys({
   from: Joi.string(),
