@@ -44,7 +44,6 @@ export async function CreateAccount(req: Request | any, res: Response, next: Nex
 }
 export async function getBankAccounts(req: Request | any, res: Response, next: NextFunction) {
   try {
-    console.log('here');
     const userId = req.user.id;
     const account = await AccountInstance.findAll({
       where: { userId: userId },
@@ -76,6 +75,11 @@ export async function deleteBankAccount(req: Request, res: Response, next: NextF
         message: 'Account deleted successfully',
       });
     }
+    return res.status(404).json({
+      status: 'error',
+      message: 'Account not found',
+    });
+    
   } catch (error) {
     return res.status(500).json({
       status: 'error',

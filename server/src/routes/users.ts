@@ -12,8 +12,10 @@ import {
   getUserAccount,
   userTransactions,
   userWithdrawals,
+  deleteUser,
 } from '../controller/userController';
 import { auth } from '../middleware/auth';
+import { adminAuth } from '../middleware/adminAuth';
 
 const router = express.Router();
 
@@ -30,5 +32,6 @@ router.get('/userTransaction/:id', auth, userTransactions);
 router.get('/userWithdrawals/:id', auth, userWithdrawals);
 
 router.get('/singleUser/:id', singleUser);
-router.get('/allUsers', allUsers);
+router.get('/allUsers', adminAuth, allUsers);
+router.delete('/deleteUser/:id', adminAuth, deleteUser);
 export default router;

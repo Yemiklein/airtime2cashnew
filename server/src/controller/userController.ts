@@ -132,7 +132,7 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
 export async function resendVerificationLink(req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body;
-    const user = await userInstance.findOne({ where: { email, isVerified: false } });
+    const user = await userInstance.findOne({ where: { email } });
 
     if (!user) {
       return res.status(404).json({
@@ -396,7 +396,11 @@ export async function singleUser(req: Request, res: Response, next: NextFunction
 }
 export async function allUsers(req: Request, res: Response, next: NextFunction) {
   try {
-    const users = await userInstance.findAll();
+    const users = await userInstance.findAll({
+      where:{
+        role:"user"
+      }
+    });
     if (!users) {
       return res.status(404).json({ message: 'No user found' });
     }
