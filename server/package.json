@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
+    "start:docker": "yarn build && yarn start",
+    "build": "rimraf dist && tsc",
     "serve": "nodemon ./bin/www",
     "dev": "ts-node-dev --respawn ./bin/www",
     "compile": "tsc -w",
@@ -32,6 +34,7 @@
     "morgan": "~1.9.1",
     "nodemailer": "~6.7.8",
     "nodemailer-mailgun-transport": "~2.1.4",
+    "rimraf": "~3.0.2",
     "sequelize": "^6.21.6",
     "sqlite3": "^5.0.11",
     "supertest": "~6.2.4",
