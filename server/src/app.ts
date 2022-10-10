@@ -7,6 +7,12 @@ import db from './config/database.config';
 import mailRouter from './routes/email';
 import cors from 'cors';
 
+// Swagger
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+const swaggerDocument = YAML.load('./swagger.yaml');
+
+// ROUTESS
 import usersRouter from './routes/users';
 import accountRouter from './routes/accounts';
 import withdrawRouter from './routes/withdraw';
@@ -35,10 +41,12 @@ app.use('/account', accountRouter);
 app.use('/cash', withdrawRouter);
 app.use('/transfer', transferAirtimeRouter);
 app.use('/wallet', creditRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
+
 
 // error handler
 app.use(function (err: HttpError, req: Request, res: Response, next: NextFunction) {
@@ -49,5 +57,6 @@ app.use(function (err: HttpError, req: Request, res: Response, next: NextFunctio
   // render the error page
   res.status(err.status || 500);
 });
+
 
 export default app;
