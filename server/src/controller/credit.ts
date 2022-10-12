@@ -3,9 +3,7 @@ import { userInstance } from '../model/userModel';
 import { creditSchema, options } from '../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { SellAirtimeInstance } from '../model/sellAirtimeModel';
-import { emailTemplate, sendMail, tokenNotification } from './emailController';
-import speakeasy from "speakeasy";
-const twofactor = require("node-2fa");
+import { emailTemplate} from './emailController';
 
 export async function credit(req: Request | any, res: Response, next: NextFunction) {
     const id = uuidv4()
@@ -104,7 +102,3 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
         })
     }
 }
-
- // TWO FACTOR AUTHENTICATION
-
-// 
