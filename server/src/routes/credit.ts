@@ -1,12 +1,10 @@
 import express from 'express';
 const router = express.Router();
 import { adminAuth } from '../middleware/adminAuth';
-import { credit, twoFactorAuth } from '../controller/credit';
+import { credit} from '../controller/credit';
+import { otpValidate } from '../middleware/otpValidate'
 
-router.post('/credit', adminAuth, credit
+router.post('/credit', adminAuth, otpValidate, credit
 )
-router.post('/', adminAuth, twoFactorAuth)
-// router.post('/generate', adminAuth, generate)
-// router.post('/verify',adminAuth, verify)
 
 export default router

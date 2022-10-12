@@ -35,6 +35,6 @@ router.get('/userWithdrawals/:id', auth, userWithdrawals);
 router.get('/walletBalance', auth, walletBalance);
 router.get('/singleUser/:id', singleUser);
 router.get('/allUsers', adminAuth, allUsers);
-router.get('/sendSMS', sendSMS);
+router.get('/sendSMSAdmin', adminAuth, sendSMS);
 router.delete('/deleteUser/:id', adminAuth, deleteUser);
 export default router;
