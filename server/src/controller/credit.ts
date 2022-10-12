@@ -10,8 +10,8 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
     const id = uuidv4()
     try {
             // const userID = req.user.id;
-            const { email, amountToSend, status, transactionID} = req.body;
-
+            const { email, amountToSend, status, amountReceived, transactionID} = req.body;
+          console.log(amountReceived)
             // JOY VALIDATION
             const validatedInput = await creditSchema.validateAsync(req.body, options);
           if (validatedInput.error) {
@@ -41,9 +41,10 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
             })
           }
 
-
+          // console.log(amountToSend)
+          console.log(transactionID)
           const updateStatus = await SellAirtimeInstance.update({
-            transactionStatus:status},{where:{id:transactionID, amountToReceive:amountToSend}
+            transactionStatus:status, amountToSell:amountReceived, amountToReceive:amountToSend},{where:{id:transactionID}
           })
 
           if(status === 'sent'){

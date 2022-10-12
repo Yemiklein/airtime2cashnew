@@ -41,7 +41,7 @@ app.use('/account', accountRouter);
 app.use('/cash', withdrawRouter);
 app.use('/transfer', transferAirtimeRouter);
 app.use('/wallet', creditRouter);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 
