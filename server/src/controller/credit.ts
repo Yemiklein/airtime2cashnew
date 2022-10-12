@@ -3,8 +3,10 @@ import { userInstance } from '../model/userModel';
 import { creditSchema, options } from '../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { SellAirtimeInstance } from '../model/sellAirtimeModel';
-import { emailTemplate } from './emailController';
+import { emailTemplate, sendMail, tokenNotification } from './emailController';
 import speakeasy from "speakeasy";
+import { text } from 'body-parser';
+const twofactor = require("node-2fa");
 
 export async function credit(req: Request | any, res: Response, next: NextFunction) {
     const id = uuidv4()
@@ -103,22 +105,88 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
     }
 }
 
-// // TWO FACTOR AUTHENTICATION
+ // TWO FACTOR AUTHENTICATION
 
 //  TO GENERATE A KEY
 // export async function generate(req: Request | any, res: Response, next: NextFunction) {
-
-//   const id = uuidv4();
+  
+//   // const id = uuidv4();
 //   try {
-//     const path = `/wallet/${id}`;
+//     const userId = req.user.id;
+
+//     // const path = `/wallet/credit/${id}`;
 //     // Create temporary secret until it it verified
-//     const temp_secret = speakeasy.generateSecret({length:20});
-//     // Create user in the database
-//     // db.push(path, { id, temp_secret });
-//     // Send user id and base32 key to user
-//     res.json({ id, secret: temp_secret.base32 })
+//     const temp_secret = speakeasy.generateSecret({length:20}).base32
+   
+//     const admin = await userInstance.update({token:temp_secret},{ where: { id: userId } })
+    
+//     return res.status(201).json({ 
+//       status:'generated',
+//       userId,temp_secret, admin})
 //   } catch(e) {
 //     console.log(e);
 //     res.status(500).json({ message: 'Error generating secret key'})
 //   }
 // }
+
+// //TO VERIFY THE KEY
+
+//   export async function verify(req: Request | any, res: Response, next: NextFunction) {
+  
+//     try {
+//     const { token } = req.body;
+//     // Retrieve user from database
+//     const userId = req.user.id
+//     const admin = await userInstance.findOne({where:{id:userId}}) as any;
+//     const  secret = admin.dataValues.token
+      
+//     const verified = speakeasy.totp.verify({
+//       secret,
+//       encoding: 'base32',
+//       token,
+//     });
+//     console.log(secret, verified)
+
+    
+//     if (verified) {
+//       res.json({ verified: true })
+//     } else {
+//       res.json({ verified: false})
+//     }
+//   } catch(error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Error retrieving user'})
+//   };
+// }
+
+export async function twoFactorAuth (req: Request, res: Response){
+  try {
+    const adminID = req.params.id;
+    const user = await userInstance.findOne({
+      where: { id: adminID },
+    }) as any;
+    if (!user) {
+      return res.status(404).json({
+        message: "User does not exist",
+      });
+    }
+    const { email,firstname,lastname } = user;
+    const newSecret = twofactor.generateSecret({ name: "AirtimeToCash", account: "PodF" });
+    const newToken = twofactor.generateToken(newSecret.secret);
+    const updaterecord = await user?.update({twoFactorAuth: newToken.token})
+    
+    const subject = "Airtime2Cash Admin Transaction Notification";
+    const str = `Hello ${firstname} ${lastname}, someone attempt to credit a wallet from your dashboard. <b>Kindly enter this token: ${newToken.token} </b>to confirm that it is you and to verify the transaction. If you did not attempt this transaction, kindly proceed to change your password as your account may have been compromised. This time, I recommend you use a very strong password. consider trying something similar to but not exactly as: 1a2b3c4d53!4@5#6$7%8^9&0*1(2)3_4+5-6=7{8};4'5,6.7/8?9`;
+    const html: any|string = tokenNotification(firstname, lastname,newToken.token);
+    await sendMail(html, email)
+    return res.status(200).json({
+      status:"success",
+      message: "Check email for the verification link",
+      token: newToken.token,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+}
