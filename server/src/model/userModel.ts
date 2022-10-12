@@ -16,8 +16,8 @@ export interface userAttributes {
   token?: string;
   role?: string;
   walletBalance?: number;
-  otp?: number;
-  otpExpires?:number
+  otp?: Number;
+  otpExpires?: Number;
 }
 
 export class userInstance extends Model<userAttributes> {
@@ -120,13 +120,13 @@ userInstance.init(
       type: DataTypes.NUMBER,
       defaultValue: 0,
     },
-    otp:{
+    otp: {
       type: DataTypes.NUMBER,
       defaultValue: null,
     },
-    otpExpires:{
+    otpExpires: {
       type: DataTypes.NUMBER,
-      defaultValue: null
+      defaultValue: null,
     },
   },
   {

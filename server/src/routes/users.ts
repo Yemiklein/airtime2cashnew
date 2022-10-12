@@ -15,7 +15,7 @@ import {
   deleteUser,
   walletBalance,
 } from '../controller/userController';
-import {sendSMS} from '../controller/smsController';
+import {sendOTP} from '../controller/smsController';
 import { auth } from '../middleware/auth';
 import { adminAuth } from '../middleware/adminAuth';
 
@@ -35,6 +35,7 @@ router.get('/userWithdrawals/:id', auth, userWithdrawals);
 router.get('/walletBalance', auth, walletBalance);
 router.get('/singleUser/:id', singleUser);
 router.get('/allUsers', adminAuth, allUsers);
-router.get('/sendSMSAdmin', adminAuth, sendSMS);
+router.post('/sendOTPAdmin', adminAuth, sendOTP);
+router.post('/sendOTPUser', auth, sendOTP);
 router.delete('/deleteUser/:id', adminAuth, deleteUser);
 export default router;
