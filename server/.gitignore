@@ -6,3 +6,4 @@ dist
 .sqlite
 coverage
 data.txt
+database.sqlite

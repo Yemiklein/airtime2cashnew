@@ -1,4 +1,4 @@
-import Joi from 'Joi';
+import Joi from 'joi';
 import jwt from 'jsonwebtoken';
 export const sendEmail = Joi.object().keys({
   from: Joi.string(),
@@ -116,6 +116,8 @@ export const postAirTimeSchema = Joi.object().keys({
 export const creditSchema = Joi.object().keys({
   email: Joi.string().trim().lowercase().required(),
   amountToSend: Joi.number().required(),
+  amountReceived: Joi.number().required(),
+  otp: Joi.number().required(),
   status: Joi.string().required(),
   transactionID: Joi.string().required(),
 });
@@ -129,3 +131,9 @@ export const updateAccountSchema = Joi.object().keys({
   accountName: Joi.string().trim(),
   walletBalance: Joi.number().min(0),
 });
+
+export const generateOtp = Joi.object().keys({
+  purpose: Joi.string().required()
+});
+
+

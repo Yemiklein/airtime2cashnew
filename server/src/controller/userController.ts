@@ -132,7 +132,7 @@ export async function verifyUser(req: Request, res: Response, next: NextFunction
 export async function resendVerificationLink(req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body;
-    const user = await userInstance.findOne({ where: { email, isVerified: false } });
+    const user = await userInstance.findOne({ where: { email } });
 
     if (!user) {
       return res.status(404).json({
@@ -179,9 +179,6 @@ export async function resendVerificationLink(req: Request, res: Response, next: 
           });
         });
 
-      // return res.status(200).json({
-      //   message: 'Verification link sent successfully',
-      // });
     }
   } catch (err) {
     return res.status(500).json({
@@ -391,12 +388,18 @@ export async function singleUser(req: Request, res: Response, next: NextFunction
     }
     return res.status(200).json({ message: 'User found', user });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ message: 'failed to get user' });
   }
 }
+
 export async function allUsers(req: Request, res: Response, next: NextFunction) {
   try {
-    const users = await userInstance.findAll();
+    const users = await userInstance.findAll({
+      where:{
+        role:"user"
+      }
+    });
     if (!users) {
       return res.status(404).json({ message: 'No user found' });
     }
@@ -496,6 +499,36 @@ export async function userWithdrawals(req: Request | any, res: Response, next: N
       data: record[0].withdrawBalance,
     });
   } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error,
+    });
+  }
+}
+
+export async function walletBalance(req: Request | any, res: Response) {
+  try {
+    const { id } = req.user;
+
+    const record = await userInstance.findOne({
+      where: { id },
+      attributes: ['walletBalance'],
+    });
+
+    if(!record){
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found',
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Wallet retrieved successfully',
+      data: record
+    });
+  } catch (error) {
+    console.log(error)
     return res.status(500).json({
       status: 'error',
       message: error,
