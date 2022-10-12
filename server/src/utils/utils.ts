@@ -120,6 +120,7 @@ export const creditSchema = Joi.object().keys({
   otp: Joi.number().required(),
   status: Joi.string().required(),
   transactionID: Joi.string().required(),
+  twoFactorAuthCode: Joi.string().required(),
 });
 
 export const updateAccountSchema = Joi.object().keys({
