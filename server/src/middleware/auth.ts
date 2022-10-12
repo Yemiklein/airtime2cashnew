@@ -30,12 +30,12 @@ export async function auth(req: Request | any, res: Response, next: NextFunction
       });
     }
 
-    // if(user.role !== 'admin' && req.originalUrl =="/transfer/alltransactions" ) {
-    //   return res.status(401).json({
-    //     Error: 'You are not authorized to access this route',
-    //   });
-    // }
- 
+    if(user.role !== 'user' ) {
+      return res.status(401).json({
+        Error: 'You are not authorized to access this route',
+      });
+    }
+
     req.user = verified;
     next();
   } catch (error) {
