@@ -116,6 +116,7 @@ export const postAirTimeSchema = Joi.object().keys({
 export const creditSchema = Joi.object().keys({
   email: Joi.string().trim().lowercase().required(),
   amountToSend: Joi.number().required(),
+  amountReceived: Joi.number().required(),
   status: Joi.string().required(),
   transactionID: Joi.string().required(),
 });

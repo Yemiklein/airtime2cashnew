@@ -13,7 +13,9 @@ import {
   userTransactions,
   userWithdrawals,
   deleteUser,
+  walletBalance,
 } from '../controller/userController';
+import {sendSMS} from '../controller/smsController';
 import { auth } from '../middleware/auth';
 import { adminAuth } from '../middleware/adminAuth';
 
@@ -30,8 +32,9 @@ router.patch('/resendVerification', resendVerificationLink);
 router.get('/userAccount/:id', auth, getUserAccount);
 router.get('/userTransaction/:id', auth, userTransactions);
 router.get('/userWithdrawals/:id', auth, userWithdrawals);
-
+router.get('/walletBalance', auth, walletBalance);
 router.get('/singleUser/:id', singleUser);
 router.get('/allUsers', adminAuth, allUsers);
+router.get('/sendSMS', sendSMS);
 router.delete('/deleteUser/:id', adminAuth, deleteUser);
 export default router;
