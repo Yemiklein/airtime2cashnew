@@ -141,3 +141,4 @@ userInstance.hasMany(SellAirtimeInstance, {foreignKey: 'userId', as: 'SellAirtim
 AccountInstance.belongsTo(userInstance, { foreignKey: 'userId', as: 'Users' });
 WithdrawHistoryInstance.belongsTo(userInstance, { foreignKey: 'userId', as: 'Users' });
 SellAirtimeInstance.belongsTo(userInstance, {foreignKey: 'userId', as: 'Users'})
+
