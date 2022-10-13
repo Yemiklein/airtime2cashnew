@@ -92,7 +92,7 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
           });
         }else{
             return res.status(201).json({
-                message:"Transaction Cancelled"
+                message:"Transaction successfully cancelled"
             })
         }
 
