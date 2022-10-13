@@ -90,8 +90,8 @@ export async function credit(req: Request | any, res: Response, next: NextFuncti
               message:`You have successful credited ${email} with the sum of ${amountToSend}`
           });
         }else{
-            return res.status(500).json({
-                message:"Transaction Cancelled"
+            return res.status(201).json({
+                message:"Transaction successfully cancelled"
             })
         }
 
